@@ -1,0 +1,50 @@
+services:
+  livepress-db:
+    restart: on-failure
+    image: postgres
+    container_name: livepress-db
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - livepressDB:/var/lib/postgresql/data
+    networks:
+      - livepress-network
+
+  livepress-backend:
+    build:
+      context: ./backend
+    container_name: livepress-backend
+    command: npm run install_migrate_seed_and_start
+    volumes:
+      - user_uploads:/app/user_uploads/
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    environment:
+      PORT: ${BACKEND_PORT}
+      DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@livepress-db:5432/${POSTGRES_DB}
+    depends_on:
+      - livepress-db
+    networks:
+      - livepress-network
+    restart: on-failure
+  # livepress-frontend:
+  #   build:
+  #     context: ./frontend
+  #   container_name: livepress-frontend
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - livepress-backend
+  #   networks:
+  #     - livepress-network
+
+volumes:
+  user_uploads:
+  livepressDB:
+
+networks:
+  livepress-network:
