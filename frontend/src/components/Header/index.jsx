@@ -1,9 +1,10 @@
 import { Box } from "@mui/material";
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
-import useAuth from "./hooks/useAuth";
+import { useContext } from "react";
+import AuthContext from "../../contexts/AuthContext";
 
 const Header = () => {
-	const { userData, isLoading } = useAuth();
+	const { userData, isLoading } = useContext(AuthContext);
 
 	return (
 		<Box

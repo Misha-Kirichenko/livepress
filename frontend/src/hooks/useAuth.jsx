@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import AuthService from "../../../api/authService";
+import AuthService from "../api/authService";
 
 const useAuth = () => {
 	const [userData, setUserData] = useState(null);
