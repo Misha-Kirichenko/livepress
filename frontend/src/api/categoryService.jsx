@@ -1,10 +1,8 @@
 import api from "./api";
-import axios from "axios";
 import AuthService from "./authService";
 
 class CategoryService {
 	static apibase = `/categories`;
-	static instance = axios.create();
 	static async getUserSubscriptions() {
 		const token = AuthService.getToken("access");
 		if (!token) throw new Error("No access token available");

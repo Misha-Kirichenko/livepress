@@ -1,37 +1,18 @@
-import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Stack, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import useSubscriptions from "../../hooks/useSubscriptions";
-import useCategories from "../../hooks/useCategories";
-import CategoryService from "../../api/categoryService";
+import { useContext } from "react";
+import CategoriesContext from "../../contexts/CategoriesContext";
 
-const Categories = () => {
-	const { subscriptions: initialSubscriptions, isLoading: isLoadingSubs } =
-		useSubscriptions();
-	const { categories, isLoading: isLoadingCats } = useCategories();
-	const [subscriptions, setSubscriptions] = useState(
-		initialSubscriptions || []
-	);
+const Categories = ({
+	isLoadingCats,
+	isLoadingSubs,
+	subscriptions,
+	handleToggleSubscription
+}) => {
+	const categories = useContext(CategoriesContext);
 
-	useEffect(() => {
-		if (initialSubscriptions) {
-			setSubscriptions(initialSubscriptions);
-		}
-	}, [initialSubscriptions]);
-
-	const handleToggleSubscription = async (categoryId) => {
-		try {
-			const response = await CategoryService.toggleSubscription(categoryId);
-			const updatedSubscriptions = response.data;
-			if (Array.isArray(updatedSubscriptions)) {
-				setSubscriptions(updatedSubscriptions);
-			}
-		} catch (error) {
-			console.error("subscription toggle error:", error);
-		}
-	};
-
-	if (isLoadingSubs || isLoadingCats) {
+	if (!categories || isLoadingSubs || isLoadingCats) {
 		return "Loading...";
 	}
 
@@ -71,6 +52,13 @@ const Categories = () => {
 			</Stack>
 		</>
 	);
+};
+
+Categories.propTypes = {
+	isLoadingCats: PropTypes.bool.isRequired,
+	isLoadingSubs: PropTypes.bool.isRequired,
+	subscriptions: PropTypes.array.isRequired,
+	handleToggleSubscription: PropTypes.func.isRequired
 };
 
 export default Categories;

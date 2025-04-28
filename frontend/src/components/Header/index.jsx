@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import { useContext } from "react";
 import AuthContext from "../../contexts/AuthContext";
+import ProfileMenu from "./ProfileMenu";
 
 const Header = () => {
 	const { userData, isLoading } = useContext(AuthContext);
@@ -33,6 +34,7 @@ const Header = () => {
 							</span>
 							<span>{`${userData.name[0]}.${userData.surname[0]}`}</span>
 						</Box>
+						<ProfileMenu />
 					</>
 				)}
 			</Box>

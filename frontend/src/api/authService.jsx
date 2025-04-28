@@ -1,10 +1,7 @@
 import api from "./api";
-import axios from "axios";
 
 class AuthService {
 	static apibase = `/auth`;
-	static instance = axios.create();
-
 	static getToken(type) {
 		if (type === "access")
 			return (

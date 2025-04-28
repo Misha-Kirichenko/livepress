@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 
 exports.getMyList = async (userData, query) => {
 	let articles = [];
+	let subscriptions = null;
 	let total = 0;
 
 	const { role, id } = userData;
@@ -52,19 +53,21 @@ exports.getMyList = async (userData, query) => {
 			}
 		});
 
-		const subscriptions = user.subscriptions.map((category) => category.id);
+		subscriptions = user.subscriptions.map((category) => category.id);
 		total = await Article.count({
 			where: {
-				category_id: { [Op.in]: subscriptions },
 				...searchCondition,
-				...(category_id && { category_id })
+				...(category_id
+					? { category_id }
+					: { category_id: { [Op.in]: subscriptions } })
 			}
 		});
 		articles = await Article.findAll({
 			where: {
-				category_id: { [Op.in]: subscriptions },
 				...searchCondition,
-				...(category_id && { category_id })
+				...(category_id
+					? { category_id }
+					: { category_id: { [Op.in]: subscriptions } })
 			},
 			attributes: { exclude: ["category_id", "author_id", "description"] },
 			include: [
@@ -94,6 +97,11 @@ exports.getMyList = async (userData, query) => {
 				...(articleJson.author && {
 					author: `${articleJson.author.name} ${articleJson.author.surname}`
 				}),
+				...(role === "USER" &&
+					subscriptions &&
+					category_id && {
+						subOnCategory: subscriptions.includes(Number(category_id))
+					}),
 				category: articleJson.category.name
 			};
 			return articleWithPreviewText;
