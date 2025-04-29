@@ -12,8 +12,16 @@ import { DEFAULT_IMG_URL } from "../../constants";
 
 const Article = ({ articleData }) => {
 	const navigate = useNavigate();
-	const { id, title, category, author, img } = articleData;
+	const { id, title, category, author, img, createDate } = articleData;
 	const [[firstNameInit], [lastNameInit]] = author.split(" ");
+
+	const date = new Date(Number(createDate));
+
+	const formattedDate = date.toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric"
+	});
 
 	return (
 		<Card sx={{ maxWidth: 345, width: "100%" }}>
@@ -22,7 +30,7 @@ const Article = ({ articleData }) => {
 					<Avatar aria-label="author">{`${firstNameInit}.${lastNameInit}`}</Avatar>
 				}
 				title={title}
-				subheader="September 14, 2016"
+				subheader={formattedDate}
 			/>
 			<CardMedia
 				component="img"
@@ -43,7 +51,10 @@ const Article = ({ articleData }) => {
 					</Typography>
 					<Typography variant="body1" color="text.secondary">
 						{category}
-						{Object.prototype.hasOwnProperty.call(articleData, "subOnCategory") &&
+						{Object.prototype.hasOwnProperty.call(
+							articleData,
+							"subOnCategory"
+						) &&
 							!articleData.subOnCategory && <sup>&nbsp;not subscibed</sup>}
 					</Typography>
 					<Box style={{ marginLeft: "auto" }}>
@@ -62,7 +73,8 @@ Article.propTypes = {
 		category: PropTypes.string.isRequired,
 		author: PropTypes.string.isRequired,
 		img: PropTypes.string,
-		subOnCategory: PropTypes.bool
+		subOnCategory: PropTypes.bool,
+		createDate: PropTypes.string
 	})
 };
 

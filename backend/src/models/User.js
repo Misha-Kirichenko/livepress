@@ -24,9 +24,6 @@ module.exports = (conn) => {
 		},
 		{
 			timestamps: false,
-			hooks: {
-				afterFind: (result) => mutateDates(result, "lastLogin")
-			},
 			defaultScope: {
 				attributes: { exclude: ["password"] }
 			},

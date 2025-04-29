@@ -36,7 +36,6 @@ module.exports = (conn) => {
 				beforeSave: (result) => {
 					convertToEntities(result, "description");
 				},
-				afterFind: (result) => mutateDates(result, "createDate")
 			}
 		}
 	);

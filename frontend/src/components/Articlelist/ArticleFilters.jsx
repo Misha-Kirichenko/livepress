@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
 	Box,
@@ -13,10 +13,34 @@ import CategoriesContext from "../../contexts/CategoriesContext";
 
 const ArticleFilters = ({ queryParamsData }) => {
 	const categories = useContext(CategoriesContext);
-
 	const { queryParams, handleSetParam } = queryParamsData;
 	const { search, category_id } = queryParams;
-	
+
+	const [searchStr, setSearchStr] = useState(search);
+	const debounceTimeout = useRef(null);
+
+	const handleSetSearch = ({ target }) => {
+		const { value } = target;
+		setSearchStr(value);
+
+		if (debounceTimeout.current) {
+			clearTimeout(debounceTimeout.current);
+		}
+
+		debounceTimeout.current = setTimeout(() => {
+			if (!value.length || value.length > 3) {
+				handleSetParam("search", value);
+			}
+		}, 500);
+	};
+
+	useEffect(() => {
+		return () => {
+			if (debounceTimeout.current) {
+				clearTimeout(debounceTimeout.current);
+			}
+		};
+	}, []);
 
 	return (
 		<Box sx={{ padding: 2, backgroundColor: "#f5f5f5", marginBottom: 3 }}>
@@ -26,8 +50,8 @@ const ArticleFilters = ({ queryParamsData }) => {
 						fullWidth
 						label="Search"
 						variant="outlined"
-						value={search}
-						onChange={(e) => handleSetParam("search", e.target.value)}
+						value={searchStr}
+						onChange={handleSetSearch}
 						size="small"
 					/>
 				</Grid>
@@ -42,13 +66,12 @@ const ArticleFilters = ({ queryParamsData }) => {
 							fullWidth
 						>
 							<MenuItem value=""></MenuItem>
-							{categories
-								? categories.map((cat) => (
-										<MenuItem key={cat.id} value={cat.id}>
-											{cat.name}
-										</MenuItem>
-								  ))
-								: ""}
+							{categories &&
+								categories.map((cat, index) => (
+									<MenuItem key={`${cat.id}-${index}`} value={cat.id}>
+										{cat.name}
+									</MenuItem>
+								))}
 						</Select>
 					</FormControl>
 				</Grid>
@@ -68,9 +91,8 @@ ArticleFilters.propTypes = {
 	queryParamsData: PropTypes.shape({
 		queryParams: PropTypes.shape({
 			search: PropTypes.string,
-			category_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+			category_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 		}),
-
 		handleSetParam: PropTypes.func.isRequired
 	}).isRequired
 };
