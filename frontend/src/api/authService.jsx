@@ -67,7 +67,7 @@ class AuthService {
 		const response = await api.get(`${AuthService.apibase}/me`, {
 			headers: { Authorization: `Bearer ${token}` }
 		});
-		
+
 		return response.data;
 	}
 }

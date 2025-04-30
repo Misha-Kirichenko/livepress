@@ -4,6 +4,7 @@ import WithAuth from "../HOC/WithAuth";
 import "./App.css";
 import Main from "../../pages/Main";
 import Article from "../../pages/Article";
+import Header from "../Header";
 
 const App = () => {
 	return (
@@ -14,6 +15,7 @@ const App = () => {
 					path="/"
 					element={
 						<WithAuth>
+							<Header />
 							<Main />
 						</WithAuth>
 					}
@@ -23,6 +25,7 @@ const App = () => {
 					path="/article/:id"
 					element={
 						<WithAuth>
+							<Header />
 							<Article />
 						</WithAuth>
 					}

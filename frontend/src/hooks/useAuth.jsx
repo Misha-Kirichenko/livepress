@@ -15,8 +15,8 @@ const useAuth = () => {
 			} catch (error) {
 				if (error.response.status === 401) {
 					AuthService.clearTokens();
-					navigate("/login");
 				}
+				navigate("/login");
 			} finally {
 				setIsLoading(false);
 			}

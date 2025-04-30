@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import Menu from "@mui/material/Menu";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MenuItem from "@mui/material/MenuItem";
+import AuthService from "../../api/authService";
 
 const ProfileMenu = () => {
 	const navigate = useNavigate();
@@ -18,7 +19,7 @@ const ProfileMenu = () => {
 	};
 
 	const handleLogout = () => {
-		localStorage.removeItem("token");
+		AuthService.clearTokens();
 		navigate("/login");
 	};
 

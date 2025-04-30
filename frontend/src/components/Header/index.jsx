@@ -5,7 +5,7 @@ import AuthContext from "../../contexts/AuthContext";
 import ProfileMenu from "./ProfileMenu";
 
 const Header = () => {
-	const { userData, isLoading } = useContext(AuthContext);
+	const userData = useContext(AuthContext);
 
 	return (
 		<Box
@@ -24,19 +24,13 @@ const Header = () => {
 					justifyContent: "flex-end"
 				}}
 			>
-				{isLoading ? (
-					"loading..."
-				) : (
-					<>
-						<Box sx={{ paddingTop: "15px", display: "flex" }}>
-							<span>
-								<NotificationsRoundedIcon />
-							</span>
-							<span>{`${userData.name[0]}.${userData.surname[0]}`}</span>
-						</Box>
-						<ProfileMenu />
-					</>
-				)}
+				<Box sx={{ paddingTop: "15px", display: "flex" }}>
+					<span>
+						<NotificationsRoundedIcon />
+					</span>
+					<span>{`${userData.name[0]}.${userData.surname[0]}`}</span>
+				</Box>
+				<ProfileMenu />
 			</Box>
 		</Box>
 	);

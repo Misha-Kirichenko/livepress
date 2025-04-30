@@ -1,12 +1,14 @@
 import PropTypes from "prop-types";
-import { Navigate } from "react-router";
+import AuthContext from "../../contexts/AuthContext";
+import useAuth from "../../hooks/useAuth";
 
 const WithAuth = ({ children }) => {
-	const token =
-		localStorage.getItem("accessToken") ||
-		sessionStorage.getItem("accessToken");
-	if (!token) return <Navigate to="/login" />;
-	return <>{children}</>;
+	const { userData, isLoading } = useAuth();
+	if (isLoading) return "loading...";
+
+	return (
+		<AuthContext.Provider value={userData}>{children}</AuthContext.Provider>
+	);
 };
 
 WithAuth.propTypes = {

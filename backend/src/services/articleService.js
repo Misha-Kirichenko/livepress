@@ -1,6 +1,6 @@
 const conn = require("@config/conn");
 const path = require("path");
-const { Op, QueryTypes } = require("sequelize");
+const { QueryTypes } = require("sequelize");
 const MESSAGES = require("@constants/messages");
 const { Article, Category, User, Reaction } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException, deleteFile } = require("@utils");
@@ -9,55 +9,27 @@ const { REACTIONS_QUERY, USER_ASSOC_ARTICLE_QUERY } = require("@constants/sql");
 const articlesPath = "user_uploads/articles";
 
 exports.getArticle = async (id, userData) => {
-	const getArticleByRole = async (role) => {
-		let foundArticle = null;
-		if (role === "ADMIN") {
-			foundArticle = await Article.findOne({
-				where: { id, author_id: userData.id },
-				attributes: { exclude: ["category_id", "author_id"] },
-				include: {
-					model: Category,
-					as: "category",
-					attributes: ["name"]
-				}
-			});
-		} else {
-			const userCategories = await User.findByPk(userData.id, {
-				include: {
-					model: Category,
-					as: "subscriptions",
-					attributes: ["id", "name"],
-					through: { attributes: [] }
-				}
-			});
-
-			const subscriptions = userCategories.subscriptions.map(
-				(category) => category.id
-			);
-
-			foundArticle = await Article.findOne({
-				where: { id, category_id: { [Op.in]: subscriptions } },
-				attributes: { exclude: ["category_id", "author_id"] },
-				include: [
-					{
-						model: Category,
-						as: "category",
-						attributes: ["name"]
-					},
-					{
-						model: User,
-						as: "author",
-						attributes: ["name", "surname"]
-					}
-				]
-			});
-		}
-		return foundArticle;
-	};
-
 	let userReaction = null;
+	let subscriptions = null;
+
 	const { role, id: user_id } = userData;
-	const foundArticle = await getArticleByRole(role);
+
+	const foundArticle = await Article.findOne({
+		where: { id },
+		attributes: { exclude: ["category_id", "author_id"] },
+		include: [
+			{
+				model: Category,
+				as: "category",
+				attributes: ["id", "name"]
+			},
+			{
+				model: User,
+				as: "author",
+				attributes: ["id", "name", "surname"]
+			}
+		]
+	});
 
 	if (!foundArticle) {
 		const notFoundException = createHttpException(
@@ -75,20 +47,33 @@ exports.getArticle = async (id, userData) => {
 			},
 			attributes: ["reaction"]
 		});
+
 		if (foundReaction) {
 			userReaction = foundReaction.reaction;
 		}
+		const userCategories = await User.findByPk(userData.id, {
+			include: {
+				model: Category,
+				as: "subscriptions",
+				attributes: ["id"],
+				through: { attributes: [] }
+			}
+		});
+
+		subscriptions = userCategories.subscriptions.map((category) => category.id);
 	}
 
 	return {
 		...foundArticle.toJSON(),
-		...(foundArticle.author && {
-			author: {
-				author_id: foundArticle.author.id,
-				fullName: `${foundArticle.author.name} ${foundArticle.author.surname}`
-			}
-		}),
-		...(role === "USER" && { reaction: userReaction }),
+		author: {
+			author_id: foundArticle.author.id,
+			fullName: `${foundArticle.author.name} ${foundArticle.author.surname}`
+		},
+		...(role === "USER" &&
+			subscriptions && {
+				reaction: userReaction,
+				subOnCategory: subscriptions.includes(foundArticle.category.id)
+			}),
 		category: foundArticle.category.name
 	};
 };
@@ -125,9 +110,7 @@ exports.updateArticle = async (req) => {
 	const { file, body, user, params } = req;
 	let relativeFilePath = null;
 
-	const foundArticle = await Article.findOne({
-		where: { id: params.id, author_id: user.id }
-	});
+	const foundArticle = await Article.findByPk(params.id);
 
 	if (!foundArticle) {
 		const notFoundException = createHttpException(
@@ -135,6 +118,14 @@ exports.updateArticle = async (req) => {
 			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
 		);
 		throw notFoundException;
+	}
+
+	if (foundArticle.author_id !== user.id) {
+		const forbiddenException = createHttpException(
+			403,
+			MESSAGES.ERRORS.FORBIDDEN
+		);
+		throw forbiddenException;
 	}
 
 	if (file) {
@@ -173,9 +164,7 @@ exports.updateArticle = async (req) => {
 };
 
 exports.deleteArticle = async (user_id, article_id) => {
-	const foundArticle = await Article.findOne({
-		where: { id: article_id, author_id: user_id }
-	});
+	const foundArticle = await Article.findByPk(article_id);
 
 	if (!foundArticle) {
 		const notFoundException = createHttpException(
@@ -183,6 +172,14 @@ exports.deleteArticle = async (user_id, article_id) => {
 			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
 		);
 		throw notFoundException;
+	}
+
+	if (foundArticle.author_id !== user_id) {
+		const forbiddenException = createHttpException(
+			403,
+			MESSAGES.ERRORS.FORBIDDEN
+		);
+		throw forbiddenException;
 	}
 
 	await foundArticle.destroy();
@@ -220,7 +217,7 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 	const userReaction = reaction.toUpperCase();
 
 	const [checkResult] = await conn.query(USER_ASSOC_ARTICLE_QUERY, {
-		replacements: { article_id, user_id },
+		replacements: { article_id },
 		type: QueryTypes.SELECT
 	});
 
@@ -230,14 +227,6 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
 		);
 		throw notFoundException;
-	}
-
-	if (!checkResult.isInUserSubs) {
-		const forbiddenException = createHttpException(
-			403,
-			MESSAGES.ERRORS.FORBIDDEN
-		);
-		throw forbiddenException;
 	}
 
 	const foundReaction = await Reaction.findOne({
