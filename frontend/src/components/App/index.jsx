@@ -3,6 +3,7 @@ import Login from "../../pages/Login";
 import WithAuth from "../HOC/WithAuth";
 import "./App.css";
 import Main from "../../pages/Main";
+import Article from "../../pages/Article";
 
 const App = () => {
 	return (
@@ -18,6 +19,14 @@ const App = () => {
 					}
 				/>
 				<Route path="/login" element={<Login />} />
+				<Route
+					path="/article/:id"
+					element={
+						<WithAuth>
+							<Article />
+						</WithAuth>
+					}
+				/>
 			</Routes>
 		</Router>
 	);

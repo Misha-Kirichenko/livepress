@@ -83,7 +83,10 @@ exports.getArticle = async (id, userData) => {
 	return {
 		...foundArticle.toJSON(),
 		...(foundArticle.author && {
-			author: `${foundArticle.author.name} ${foundArticle.author.surname}`
+			author: {
+				author_id: foundArticle.author.id,
+				fullName: `${foundArticle.author.name} ${foundArticle.author.surname}`
+			}
 		}),
 		...(role === "USER" && { reaction: userReaction }),
 		category: foundArticle.category.name
