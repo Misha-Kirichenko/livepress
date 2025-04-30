@@ -5,6 +5,7 @@ import "./App.css";
 import Main from "../../pages/Main";
 import Article from "../../pages/Article";
 import Header from "../Header";
+import NotFound from "../NotFound";
 
 const App = () => {
 	return (
@@ -30,6 +31,7 @@ const App = () => {
 						</WithAuth>
 					}
 				/>
+				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</Router>
 	);

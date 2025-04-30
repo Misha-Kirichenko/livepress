@@ -13,6 +13,7 @@ import { DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
 import { useContext } from "react";
+import NotFound from "../../components/NotFound";
 
 const Article = () => {
 	const userData = useContext(AuthContext);
@@ -20,6 +21,8 @@ const Article = () => {
 	const { id } = useParams();
 	const { article, isLoading: isArticleLoading } = useArticle(id);
 	const { reactions, isLoading: isReactionsLoading } = useReactions(id);
+
+	if (!article) return <NotFound text="Article" />;
 
 	if (isArticleLoading) return "loading...";
 	if (isReactionsLoading) return "loading...";
