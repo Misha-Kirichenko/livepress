@@ -7,9 +7,10 @@ import {
 	CardMedia
 } from "@mui/material";
 import { useParams } from "react-router";
+import * as he from "he";
 import AuthContext from "../../contexts/AuthContext";
 import useArticle from "../../hooks/useArticle";
-import { DEFAULT_IMG_URL } from "../../constants";
+import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
 import { useContext } from "react";
@@ -17,7 +18,6 @@ import NotFound from "../../components/NotFound";
 
 const Article = () => {
 	const userData = useContext(AuthContext);
-
 	const { id } = useParams();
 	const { article, isLoading: isArticleLoading } = useArticle(id);
 	const { reactions, isLoading: isReactionsLoading } = useReactions(id);
@@ -28,6 +28,8 @@ const Article = () => {
 	if (isReactionsLoading) return "loading...";
 
 	const { title, author, createDate, category, description, img } = article;
+
+	let descriptionHTML = he.decode(description);
 
 	const [authorFname, authorLname] = author.fullName.split(" ");
 	const authorInitials = `${authorFname[0]}.${authorLname[0]}`;
@@ -74,14 +76,16 @@ const Article = () => {
 			<Divider sx={{ mb: 2 }} />
 			<CardMedia
 				component="img"
-				image={img || DEFAULT_IMG_URL}
+				image={img ? `${API_HOST}/${img}` : DEFAULT_IMG_URL}
 				alt={title}
 				sx={{ mb: 4 }}
 			/>
 
-			<Typography variant="body1" sx={{ whiteSpace: "pre-line" }} mb={4}>
-				{description}
-			</Typography>
+			<Box
+				component="div"
+				sx={{ mb: 4 }}
+				dangerouslySetInnerHTML={{ __html: descriptionHTML }}
+			/>
 			<Reactions
 				role={userData.role}
 				reactions={{

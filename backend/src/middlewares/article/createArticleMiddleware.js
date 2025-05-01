@@ -22,7 +22,6 @@ const createArticleMiddleware = [
 
 	body("description")
 		.trim()
-		.escape()
 		.notEmpty()
 		.withMessage(MESSAGE_UTIL.ERRORS.REQUIRED("description"))
 		.bail()

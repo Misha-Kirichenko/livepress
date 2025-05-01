@@ -8,7 +8,7 @@ import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import TextButton from "../TextButton";
 import { Box } from "@mui/material";
-import { DEFAULT_IMG_URL } from "../../constants";
+import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 
 const Article = ({ articleData }) => {
 	const navigate = useNavigate();
@@ -35,7 +35,7 @@ const Article = ({ articleData }) => {
 			<CardMedia
 				component="img"
 				height="194"
-				image={img || DEFAULT_IMG_URL}
+				image={img ? `${API_HOST}/${img}`: DEFAULT_IMG_URL}
 				alt={title}
 			/>
 			<CardContent>
