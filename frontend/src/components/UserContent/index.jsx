@@ -7,9 +7,9 @@ import useCategories from "../../hooks/useCategories";
 import CategoriesContext from "../../contexts/CategoriesContext";
 
 const UserContent = () => {
-	const { subscriptions: initialSubscriptions, isLoading: isLoadingSubs } =
+	const { subscriptions: initialSubscriptions } =
 		useSubscriptions();
-	const { categories, isLoading: isLoadingCats } = useCategories();
+	const { categories} = useCategories();
 	const [subscriptions, setSubscriptions] = useState(
 		initialSubscriptions || []
 	);
@@ -32,18 +32,16 @@ const UserContent = () => {
 		}
 	};
 
-
 	return (
-		(<CategoriesContext.Provider value={categories}>
+		<CategoriesContext.Provider value={categories}>
 			<Categories
-				isLoadingCats={isLoadingCats}
-				isLoadingSubs={isLoadingSubs}
 				subscriptions={subscriptions}
 				setSubscriptions={setSubscriptions}
 				handleToggleSubscription={handleToggleSubscription}
 			/>
+
 			<ArticleList />
-		</CategoriesContext.Provider>)
+		</CategoriesContext.Provider>
 	);
 };
 

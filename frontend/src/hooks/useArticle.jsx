@@ -26,7 +26,7 @@ const useArticle = (id) => {
 		fetchArticle();
 	}, [navigate, id]);
 
-	return { article, isLoading };
+	return { article, isLoading, setArticle };
 };
 
 export default useArticle;

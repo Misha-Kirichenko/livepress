@@ -38,12 +38,26 @@ class ArticleService {
 
 		return response;
 	}
-	
+
 	static async getArticleReactions(id) {
 		const token = AuthService.getToken("access");
 		if (!token) throw new Error("No access token available");
 		const response = await api.get(
 			`${ArticleService.apibase}/reactions/${id}`,
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
+
+		return response;
+	}
+
+	static async setArticleReaction(id, reaction) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+		const response = await api.put(
+			`${ArticleService.apibase}/reaction/${id}`,
+			{ reaction },
 			{
 				headers: { Authorization: `Bearer ${token}` }
 			}

@@ -6,7 +6,7 @@ import {
 	Divider,
 	CardMedia
 } from "@mui/material";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import * as he from "he";
 import AuthContext from "../../contexts/AuthContext";
 import useArticle from "../../hooks/useArticle";
@@ -15,21 +15,26 @@ import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
 import { useContext } from "react";
 import NotFound from "../../components/NotFound";
+import ArticleService from "../../api/articleService";
+import AuthService from "../../api/authService";
+import Loader from "../../components/Loader";
 
 const Article = () => {
+	const navigate = useNavigate();
 	const userData = useContext(AuthContext);
 	const { id } = useParams();
-	const { article, isLoading: isArticleLoading } = useArticle(id);
-	const { reactions, isLoading: isReactionsLoading } = useReactions(id);
+	const { article, isLoading: isArticleLoading, setArticle } = useArticle(id);
+	const {
+		reactions,
+		isLoading: isReactionsLoading,
+		setIsLoading: setReactionsLoading,
+		setReactions
+	} = useReactions(id);
 
+	if (isArticleLoading) return <Loader width="250" height="250" />;
 	if (!article) return <NotFound text="Article" />;
 
-	if (isArticleLoading) return "loading...";
-	if (isReactionsLoading) return "loading...";
-
 	const { title, author, createDate, category, description, img } = article;
-
-	let descriptionHTML = he.decode(description);
 
 	const [authorFname, authorLname] = author.fullName.split(" ");
 	const authorInitials = `${authorFname[0]}.${authorLname[0]}`;
@@ -44,6 +49,30 @@ const Article = () => {
 		minute: "2-digit",
 		hour12: false
 	});
+
+	const handleReaction = async (reaction) => {
+		try {
+			setReactionsLoading(true);
+			const reactionData = await ArticleService.setArticleReaction(
+				id,
+				reaction
+			);
+			if (reactionData.status == 200) {
+				setArticle((prevArticle) => ({
+					...prevArticle,
+					reaction: prevArticle.reaction === reaction ? null : reaction
+				}));
+				setReactions(reactionData.data);
+			}
+		} catch (error) {
+			if (error.response.status === 401) {
+				AuthService.clearTokens();
+				navigate("/login");
+			}
+		} finally {
+			setReactionsLoading(false);
+		}
+	};
 
 	return (
 		<Box sx={{ maxWidth: "800px", margin: "0 auto", padding: 3 }}>
@@ -83,16 +112,22 @@ const Article = () => {
 
 			<Box
 				component="div"
-				sx={{ mb: 4 }}
-				dangerouslySetInnerHTML={{ __html: descriptionHTML }}
+				dangerouslySetInnerHTML={{ __html: he.decode(description) }}
 			/>
-			<Reactions
-				role={userData.role}
-				reactions={{
-					myReaction: article.reaction || null,
-					...reactions
-				}}
-			/>
+			<Divider sx={{ mb: 2 }} />
+			{isReactionsLoading ? (
+				<Loader type="block" width="25px" align="flex-end" />
+			) : (
+				<Reactions
+					role={userData.role}
+					handleReaction={handleReaction}
+					isReactionsLoading={isReactionsLoading}
+					reactions={{
+						myReaction: article.reaction || null,
+						...reactions
+					}}
+				/>
+			)}
 		</Box>
 	);
 };

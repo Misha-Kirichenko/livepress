@@ -26,7 +26,7 @@ const useReactions = (id) => {
 		fetchReactions();
 	}, [navigate, id]);
 
-	return { reactions, isLoading };
+	return { reactions, setReactions, isLoading, setIsLoading };
 };
 
 export default useReactions;

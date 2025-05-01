@@ -5,16 +5,10 @@ import { useContext } from "react";
 import CategoriesContext from "../../contexts/CategoriesContext";
 
 const Categories = ({
-	isLoadingCats,
-	isLoadingSubs,
 	subscriptions,
 	handleToggleSubscription
 }) => {
 	const categories = useContext(CategoriesContext);
-
-	if (!categories || isLoadingSubs || isLoadingCats) {
-		return "Loading...";
-	}
 
 	const markedCategories = categories?.map((category) => {
 		const isSubscribed =
@@ -55,8 +49,6 @@ const Categories = ({
 };
 
 Categories.propTypes = {
-	isLoadingCats: PropTypes.bool.isRequired,
-	isLoadingSubs: PropTypes.bool.isRequired,
 	subscriptions: PropTypes.array.isRequired,
 	handleToggleSubscription: PropTypes.func.isRequired
 };
