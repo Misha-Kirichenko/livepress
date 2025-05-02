@@ -27,24 +27,6 @@ const Article = () => {
 	const { id } = useParams();
 	const socketRef = useRef(null);
 
-	useEffect(() => {
-		socketRef.current = io(`${VITE_API_HOST}/reactions`, {
-			auth: { token: AuthService.getToken("access") }
-		});
-
-		socketRef.current.emit("viewArticle", id);
-
-		socketRef.current.on("connect_error", (err) => {
-			if (!socketRef.current.active) {
-				console.error("Socket auth failed:", err.message);
-			}
-		});
-
-		return () => {
-			socketRef.current.disconnect();
-		};
-	}, [id]);
-
 	const { article, isLoading: isArticleLoading, setArticle } = useArticle(id);
 	const {
 		reactions,
@@ -52,6 +34,32 @@ const Article = () => {
 		setIsLoading: setReactionsLoading,
 		setReactions
 	} = useReactions(id);
+
+	useEffect(() => {
+		socketRef.current = io(`${VITE_API_HOST}/reactions`, {
+			auth: { token: AuthService.getToken("access") }
+		});
+
+		socketRef.current.emit("joinArticleRoom", id);
+
+		socketRef.current.on("connect_error", (err) => {
+			if (!socketRef.current.active) {
+				console.error("Socket auth failed:", err.message);
+			}
+		});
+
+		socketRef.current.on("reaction:toggle", (data) => {
+			const { likes, dislikes } = data;
+			setReactions((prev) => {
+				if (prev.likes === likes && prev.dislikes === dislikes) return prev;
+				return { likes, dislikes };
+			});
+		});
+
+		return () => {
+			socketRef.current.disconnect();
+		};
+	}, [id, setReactions]);
 
 	if (isArticleLoading) return <Loader type="block" width="250" height="250" />;
 	if (!article) return <NotFound text="Article" />;

@@ -1,7 +1,20 @@
-const reactionsNamespace = require("./handlers/reactions");
+let reactionsNamespaceInstance = null;
+
+const reactionsNamespaceHandler = require("./handlers/reactions");
 
 const setupSocketNamespaces = (io) => {
-	reactionsNamespace(io.of("/reactions"));
+	reactionsNamespaceInstance = io.of("/reactions");
+	reactionsNamespaceHandler(reactionsNamespaceInstance);
 };
 
-module.exports = { setupSocketNamespaces };
+const getReactionsNamespace = () => {
+	if (!reactionsNamespaceInstance) {
+		throw new Error("Reactions namespace is not initialized");
+	}
+	return reactionsNamespaceInstance;
+};
+
+module.exports = {
+	setupSocketNamespaces,
+	getReactionsNamespace
+};

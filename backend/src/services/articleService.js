@@ -5,6 +5,7 @@ const MESSAGES = require("@constants/messages");
 const { Article, Category, User, Reaction } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException, deleteFile } = require("@utils");
 const { REACTIONS_QUERY, USER_ASSOC_ARTICLE_QUERY } = require("@constants/sql");
+const { getReactionsNamespace } = require("@sockets");
 
 const articlesPath = "user_uploads/articles";
 
@@ -214,6 +215,8 @@ exports.getArticleReactions = async (id) => {
 };
 
 exports.setArticleReaction = async (user_id, article_id, reaction) => {
+	const reactionsNamespace = getReactionsNamespace();
+	const roomName = `article-${article_id}`;
 	const userReaction = reaction.toUpperCase();
 
 	const [checkResult] = await conn.query(USER_ASSOC_ARTICLE_QUERY, {
@@ -248,8 +251,15 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 		type: QueryTypes.SELECT
 	});
 
-	return {
+	const reactionsData = {
 		likes: parseInt(result.likes),
 		dislikes: parseInt(result.dislikes)
 	};
+
+	reactionsNamespace.to(roomName).emit("reaction:toggle", {
+		article_id,
+		...reactionsData
+	});
+
+	return reactionsData;
 };
