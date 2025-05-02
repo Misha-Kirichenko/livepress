@@ -13,19 +13,17 @@ import useArticle from "../../hooks/useArticle";
 import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useMemo } from "react";
 import NotFound from "../../components/NotFound";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
-import { io } from "socket.io-client";
 import Loader from "../../components/Loader";
-const { VITE_API_HOST } = import.meta.env;
+import { useArticleReactionsSocket } from "../../hooks/useArticleReactionsSocket";
 
 const Article = () => {
 	const navigate = useNavigate();
 	const userData = useContext(AuthContext);
 	const { id } = useParams();
-	const socketRef = useRef(null);
 
 	const { article, isLoading: isArticleLoading, setArticle } = useArticle(id);
 	const {
@@ -35,50 +33,35 @@ const Article = () => {
 		setReactions
 	} = useReactions(id);
 
-	useEffect(() => {
-		socketRef.current = io(`${VITE_API_HOST}/reactions`, {
-			auth: { token: AuthService.getToken("access") }
+	useArticleReactionsSocket(id, setReactions);
+
+	const formattedDate = useMemo(() => {
+		if (!article?.createDate) return "";
+		const date = new Date(Number(article.createDate));
+		return date.toLocaleString("en-US", {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false
 		});
-
-		socketRef.current.emit("joinArticleRoom", id);
-
-		socketRef.current.on("connect_error", (err) => {
-			if (!socketRef.current.active) {
-				console.error("Socket auth failed:", err.message);
-			}
-		});
-
-		socketRef.current.on("reaction:toggle", (data) => {
-			const { likes, dislikes } = data;
-			setReactions((prev) => {
-				if (prev.likes === likes && prev.dislikes === dislikes) return prev;
-				return { likes, dislikes };
-			});
-		});
-
-		return () => {
-			socketRef.current.disconnect();
-		};
-	}, [id, setReactions]);
+	}, [article?.createDate]);
 
 	if (isArticleLoading) return <Loader type="block" width="250" height="250" />;
 	if (!article) return <NotFound text="Article" />;
 
-	const { title, author, createDate, category, description, img } = article;
-
+	const {
+		title,
+		author,
+		category,
+		description,
+		img,
+		reaction: myReaction,
+		subOnCategory
+	} = article;
 	const [authorFname, authorLname] = author.fullName.split(" ");
 	const authorInitials = `${authorFname[0]}.${authorLname[0]}`;
-
-	const date = new Date(Number(createDate));
-
-	const formattedDate = date.toLocaleString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
-		hour12: false
-	});
 
 	const handleReaction = async (reaction) => {
 		try {
@@ -88,14 +71,14 @@ const Article = () => {
 				reaction
 			);
 			if (reactionData.status == 200) {
-				setArticle((prevArticle) => ({
-					...prevArticle,
-					reaction: prevArticle.reaction === reaction ? null : reaction
+				setArticle((prev) => ({
+					...prev,
+					reaction: prev.reaction === reaction ? null : reaction
 				}));
 				setReactions(reactionData.data);
 			}
 		} catch (error) {
-			if (error.response.status === 401) {
+			if (error.response?.status === 401) {
 				AuthService.clearTokens();
 				navigate("/login");
 			}
@@ -109,6 +92,7 @@ const Article = () => {
 			<Typography variant="h4" gutterBottom>
 				{title}
 			</Typography>
+
 			<Stack direction="row" spacing={2} alignItems="center" mb={2}>
 				<Avatar sx={{ width: 32, height: 32 }}>{authorInitials}</Avatar>
 				<Typography variant="body2" color="text.secondary">
@@ -128,7 +112,7 @@ const Article = () => {
 					sx={{ fontStyle: "italic", ml: "auto" }}
 				>
 					Category: {category}
-					{!article.subOnCategory ? " (not subscribed)" : ""}
+					{!subOnCategory ? " (not subscribed)" : ""}
 				</Typography>
 			</Stack>
 
@@ -145,6 +129,7 @@ const Article = () => {
 				dangerouslySetInnerHTML={{ __html: he.decode(description) }}
 			/>
 			<Divider sx={{ mb: 2 }} />
+
 			{isReactionsLoading ? (
 				<Loader type="block" height="25px" width="25px" align="flex-end" />
 			) : (
@@ -153,7 +138,7 @@ const Article = () => {
 					handleReaction={handleReaction}
 					isReactionsLoading={isReactionsLoading}
 					reactions={{
-						myReaction: article.reaction || null,
+						myReaction: myReaction || null,
 						...reactions
 					}}
 				/>
