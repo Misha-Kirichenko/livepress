@@ -13,16 +13,38 @@ import useArticle from "../../hooks/useArticle";
 import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import NotFound from "../../components/NotFound";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
+import { io } from "socket.io-client";
 import Loader from "../../components/Loader";
+const { VITE_API_HOST } = import.meta.env;
 
 const Article = () => {
 	const navigate = useNavigate();
 	const userData = useContext(AuthContext);
 	const { id } = useParams();
+	const socketRef = useRef(null);
+
+	useEffect(() => {
+		socketRef.current = io(`${VITE_API_HOST}/reactions`, {
+			auth: { token: AuthService.getToken("access") }
+		});
+
+		socketRef.current.emit("viewArticle", id);
+
+		socketRef.current.on("connect_error", (err) => {
+			if (!socketRef.current.active) {
+				console.error("Socket auth failed:", err.message);
+			}
+		});
+
+		return () => {
+			socketRef.current.disconnect();
+		};
+	}, [id]);
+
 	const { article, isLoading: isArticleLoading, setArticle } = useArticle(id);
 	const {
 		reactions,
@@ -31,7 +53,7 @@ const Article = () => {
 		setReactions
 	} = useReactions(id);
 
-	if (isArticleLoading) return <Loader width="250" height="250" />;
+	if (isArticleLoading) return <Loader type="block" width="250" height="250" />;
 	if (!article) return <NotFound text="Article" />;
 
 	const { title, author, createDate, category, description, img } = article;
@@ -116,7 +138,7 @@ const Article = () => {
 			/>
 			<Divider sx={{ mb: 2 }} />
 			{isReactionsLoading ? (
-				<Loader type="block" width="25px" align="flex-end" />
+				<Loader type="block" height="25px" width="25px" align="flex-end" />
 			) : (
 				<Reactions
 					role={userData.role}

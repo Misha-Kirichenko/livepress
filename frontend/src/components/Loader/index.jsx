@@ -33,9 +33,9 @@ const Loader = ({ align, type, width, height }) => {
 
 Loader.propTypes = {
 	align: PropTypes.string,
-	type: PropTypes.string,
-	width: PropTypes.string,
-	height: PropTypes.string
+	type: PropTypes.string.isRequired,
+	width: PropTypes.string.isRequired,
+	height: PropTypes.string.isRequired
 };
 
 export default Loader;
