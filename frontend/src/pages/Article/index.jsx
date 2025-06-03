@@ -19,6 +19,7 @@ import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
 import Loader from "../../components/Loader";
 import { useArticleReactionsSocket } from "../../hooks/useArticleReactionsSocket";
+import Header from "../../components/Header";
 
 const Article = () => {
 	const navigate = useNavigate();
@@ -88,62 +89,65 @@ const Article = () => {
 	};
 
 	return (
-		<Box sx={{ maxWidth: "800px", margin: "0 auto", padding: 3 }}>
-			<Typography variant="h4" gutterBottom>
-				{title}
-			</Typography>
-
-			<Stack direction="row" spacing={2} alignItems="center" mb={2}>
-				<Avatar sx={{ width: 32, height: 32 }}>{authorInitials}</Avatar>
-				<Typography variant="body2" color="text.secondary">
-					<b>author:&nbsp;</b>
-					{userData.role === "USER"
-						? author.fullName
-						: userData.id === author.id
-						? "Me"
-						: author.fullName}
+		<>
+			<Header />
+			<Box sx={{ maxWidth: "800px", margin: "0 auto", padding: 3 }}>
+				<Typography variant="h4" gutterBottom>
+					{title}
 				</Typography>
-				<Typography variant="body2" color="text.secondary">
-					{formattedDate}
-				</Typography>
-				<Typography
-					variant="body2"
-					color="primary"
-					sx={{ fontStyle: "italic", ml: "auto" }}
-				>
-					Category: {category}
-					{!subOnCategory ? " (not subscribed)" : ""}
-				</Typography>
-			</Stack>
 
-			<Divider sx={{ mb: 2 }} />
-			<CardMedia
-				component="img"
-				image={img ? `${API_HOST}/${img}` : DEFAULT_IMG_URL}
-				alt={title}
-				sx={{ mb: 4 }}
-			/>
+				<Stack direction="row" spacing={2} alignItems="center" mb={2}>
+					<Avatar sx={{ width: 32, height: 32 }}>{authorInitials}</Avatar>
+					<Typography variant="body2" color="text.secondary">
+						<b>author:&nbsp;</b>
+						{userData.role === "USER"
+							? author.fullName
+							: userData.id === author.id
+							? "Me"
+							: author.fullName}
+					</Typography>
+					<Typography variant="body2" color="text.secondary">
+						{formattedDate}
+					</Typography>
+					<Typography
+						variant="body2"
+						color="primary"
+						sx={{ fontStyle: "italic", ml: "auto" }}
+					>
+						Category: {category}
+						{!subOnCategory ? " (not subscribed)" : ""}
+					</Typography>
+				</Stack>
 
-			<Box
-				component="div"
-				dangerouslySetInnerHTML={{ __html: he.decode(description) }}
-			/>
-			<Divider sx={{ mb: 2 }} />
-
-			{isReactionsLoading ? (
-				<Loader type="block" height="25px" width="25px" align="flex-end" />
-			) : (
-				<Reactions
-					role={userData.role}
-					handleReaction={handleReaction}
-					isReactionsLoading={isReactionsLoading}
-					reactions={{
-						myReaction: myReaction || null,
-						...reactions
-					}}
+				<Divider sx={{ mb: 2 }} />
+				<CardMedia
+					component="img"
+					image={img ? `${API_HOST}/${img}` : DEFAULT_IMG_URL}
+					alt={title}
+					sx={{ mb: 4 }}
 				/>
-			)}
-		</Box>
+
+				<Box
+					component="div"
+					dangerouslySetInnerHTML={{ __html: he.decode(description) }}
+				/>
+				<Divider sx={{ mb: 2 }} />
+
+				{isReactionsLoading ? (
+					<Loader type="block" height="25px" width="25px" align="flex-end" />
+				) : (
+					<Reactions
+						role={userData.role}
+						handleReaction={handleReaction}
+						isReactionsLoading={isReactionsLoading}
+						reactions={{
+							myReaction: myReaction || null,
+							...reactions
+						}}
+					/>
+				)}
+			</Box>
+		</>
 	);
 };
 

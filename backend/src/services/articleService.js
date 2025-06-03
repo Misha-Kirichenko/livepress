@@ -5,7 +5,8 @@ const MESSAGES = require("@constants/messages");
 const { Article, Category, User, Reaction } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException, deleteFile } = require("@utils");
 const { REACTIONS_QUERY, USER_ASSOC_ARTICLE_QUERY } = require("@constants/sql");
-const { getReactionsNamespace } = require("@sockets");
+const { getReactionsGateway } = require("@sockets");
+const { handleNewArticleNotification } = require("@sockets/handlers");
 
 const articlesPath = "user_uploads/articles";
 
@@ -92,7 +93,7 @@ exports.createArticle = async (req) => {
 	}
 
 	const foundCategory = await Category.findByPk(body.category_id, {
-		attributes: ["id"]
+		attributes: ["id", "name"]
 	});
 
 	if (!foundCategory) {
@@ -103,7 +104,25 @@ exports.createArticle = async (req) => {
 		throw notFoundException;
 	}
 
-	await Article.create({ ...articleData, author_id: user.id });
+	const foundCategoryPlain = foundCategory.get({ plain: true });
+
+	const newArticle = await Article.create({
+		...articleData,
+		author_id: user.id
+	});
+
+	const articlePlain = newArticle.get({ plain: true });
+
+	const requiredArticleData = {
+		title: articlePlain.title,
+		id: articlePlain.id,
+		createDate: articlePlain.createDate,
+		category_id: articlePlain.category_id,
+		category_name: foundCategoryPlain.name
+	};
+
+	await handleNewArticleNotification(requiredArticleData);
+
 	return { msg: MESSAGE_UTIL.SUCCESS.CREATED("article") };
 };
 
@@ -215,7 +234,7 @@ exports.getArticleReactions = async (id) => {
 };
 
 exports.setArticleReaction = async (user_id, article_id, reaction) => {
-	const reactionsNamespace = getReactionsNamespace();
+	const reactionsGateway = getReactionsGateway();
 	const roomName = `article-${article_id}`;
 	const userReaction = reaction.toUpperCase();
 
@@ -256,7 +275,7 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 		dislikes: parseInt(result.dislikes)
 	};
 
-	reactionsNamespace.to(roomName).emit("reaction:toggle", {
+	reactionsGateway.to(roomName).emit("reaction:toggle", {
 		article_id,
 		...reactionsData
 	});

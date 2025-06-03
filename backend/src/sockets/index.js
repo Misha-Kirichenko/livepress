@@ -1,20 +1,32 @@
-let reactionsNamespaceInstance = null;
+let reactionsGateway = null;
+let userNotificationsGateway = null;
 
-const reactionsNamespaceHandler = require("./handlers/reactions");
+const reactionsGatewaySetup = require("./gateways/reactions");
+const userNotificationsGatewaySetup = require("./gateways/userNotifications");
 
 const setupSocketNamespaces = (io) => {
-	reactionsNamespaceInstance = io.of("/reactions");
-	reactionsNamespaceHandler(reactionsNamespaceInstance);
+	reactionsGateway = io.of("/reactions");
+	userNotificationsGateway = io.of("/notifications/user");
+	reactionsGatewaySetup(reactionsGateway);
+	userNotificationsGatewaySetup(userNotificationsGateway);
 };
 
-const getReactionsNamespace = () => {
-	if (!reactionsNamespaceInstance) {
+const getReactionsGateway = () => {
+	if (!reactionsGateway) {
 		throw new Error("Reactions namespace is not initialized");
 	}
-	return reactionsNamespaceInstance;
+	return reactionsGateway;
+};
+
+const getUserNotificationsGateway = () => {
+	if (!userNotificationsGateway) {
+		throw new Error("User notifications gateway is not initialized");
+	}
+	return userNotificationsGateway;
 };
 
 module.exports = {
 	setupSocketNamespaces,
-	getReactionsNamespace
+	getReactionsGateway,
+	getUserNotificationsGateway
 };

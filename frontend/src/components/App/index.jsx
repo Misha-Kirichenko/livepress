@@ -1,10 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import Login from "../../pages/Login";
 import WithAuth from "../HOC/WithAuth";
-import "./App.css";
 import Main from "../../pages/Main";
 import Article from "../../pages/Article";
-import Header from "../Header";
 import NotFound from "../NotFound";
 
 const App = () => {
@@ -16,7 +14,6 @@ const App = () => {
 					path="/"
 					element={
 						<WithAuth>
-							<Header />
 							<Main />
 						</WithAuth>
 					}
@@ -26,7 +23,6 @@ const App = () => {
 					path="/article/:id"
 					element={
 						<WithAuth>
-							<Header />
 							<Article />
 						</WithAuth>
 					}

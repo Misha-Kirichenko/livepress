@@ -42,3 +42,29 @@ exports.login = async (login, password) => {
 	);
 	throw unauthorizedException;
 };
+
+exports.refresh = async (userData) => {
+	const { id, name, surname, role } = userData;
+	const foundUser = await User.findByPk(id);
+
+	if (!foundUser) {
+		const unauthorizedException = createHttpException(
+			401,
+			MESSAGES.ERRORS.UNAUTHORIZED
+		);
+		throw unauthorizedException;
+	}
+
+	foundUser.lastLogin = Date.now();
+
+	await foundUser.save();
+
+	const tokenPairs = generateTokenPairs({
+		id,
+		name,
+		surname,
+		role
+	});
+
+	return tokenPairs;
+};

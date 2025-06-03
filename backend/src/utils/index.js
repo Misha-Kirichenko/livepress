@@ -1,5 +1,6 @@
 const createHttpException = require("./createHttpException");
 const MESSAGE_UTIL = require("./messageUtil");
+const notificationUtil = require("./notificationUtil");
 const statusCodeMessage = require("./statusCodeMessage");
 const generateTokenPairs = require("./generateTokenPairs");
 const getSeparateDateKeys = require("./getSeparateDateKeys");
@@ -17,5 +18,6 @@ module.exports = {
 	isValidDateString,
 	MIGRATION_UTIL,
 	deleteFile,
-	createMulterInstance
+	createMulterInstance,
+	notificationUtil
 };

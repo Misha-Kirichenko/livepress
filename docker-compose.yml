@@ -26,8 +26,10 @@ services:
     environment:
       PORT: ${BACKEND_PORT}
       DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@livepress-db:5432/${POSTGRES_DB}
+      REDIS_URI: redis://livepress-redis:${REDIS_PORT}
     depends_on:
       - livepress-db
+      - livepress-redis
     networks:
       - livepress-network
     restart: on-failure
@@ -41,10 +43,20 @@ services:
   #     - livepress-backend
   #   networks:
   #     - livepress-network
+  livepress-redis:
+    image: redis:alpine
+    container_name: livepress-redis
+    command: redis-server --save 60 1 --loglevel warning 
+    volumes:
+      - livepressRedis:/data
+    networks:
+      - livepress-network
+    restart: on-failure
 
 volumes:
   user_uploads:
   livepressDB:
+  livepressRedis:
 
 networks:
   livepress-network:

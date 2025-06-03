@@ -84,6 +84,7 @@ router.post(
 			const answer = await articleService.createArticle(req);
 			return res.send(answer);
 		} catch (error) {
+			console.log("article create error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}

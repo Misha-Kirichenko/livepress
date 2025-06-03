@@ -9,8 +9,6 @@ module.exports = {
 		MUST_BE_OF_TYPE: (field, type) =>
 			`${field} has invalid type. It must be of type ${type}.`,
 		UNACCEPTABLE: (field) => `field '${field}' is unacceptable!`,
-		PROJECT_ASSOC_MANAGER: (status) =>
-			`Only associated manager can ${status} this project`,
 		INVALID_DATE_STRING: (field) => `${field} is invalid date string`
 	},
 	SUCCESS: {
@@ -18,7 +16,5 @@ module.exports = {
 		CREATED: (data) => `${data} was successfully created`,
 		DELETED: (data) => `${data} was successfully deleted`,
 		MIGRATION: (data) => `Successfully executed ${data} migration`,
-		TOGGLE_TASK: (status) =>
-			`Task was successfully set to ${status ? "complete" : "active"} status`,
-	}
+	},
 };

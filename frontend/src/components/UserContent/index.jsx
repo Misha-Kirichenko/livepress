@@ -5,11 +5,11 @@ import ArticleList from "../Articlelist";
 import Categories from "../Categories";
 import useCategories from "../../hooks/useCategories";
 import CategoriesContext from "../../contexts/CategoriesContext";
+import Header from "../Header";
 
 const UserContent = () => {
-	const { subscriptions: initialSubscriptions } =
-		useSubscriptions();
-	const { categories} = useCategories();
+	const { subscriptions: initialSubscriptions } = useSubscriptions();
+	const { categories } = useCategories();
 	const [subscriptions, setSubscriptions] = useState(
 		initialSubscriptions || []
 	);
@@ -33,15 +33,18 @@ const UserContent = () => {
 	};
 
 	return (
-		<CategoriesContext.Provider value={categories}>
-			<Categories
-				subscriptions={subscriptions}
-				setSubscriptions={setSubscriptions}
-				handleToggleSubscription={handleToggleSubscription}
-			/>
+		<>
+			<Header />
+			<CategoriesContext.Provider value={categories}>
+				<Categories
+					subscriptions={subscriptions}
+					setSubscriptions={setSubscriptions}
+					handleToggleSubscription={handleToggleSubscription}
+				/>
 
-			<ArticleList />
-		</CategoriesContext.Provider>
+				<ArticleList />
+			</CategoriesContext.Provider>
+		</>
 	);
 };
 

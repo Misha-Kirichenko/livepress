@@ -15,17 +15,9 @@ router.post("/login", async (req, res) => {
 	}
 });
 
-router.get("/refresh", verifyTokenMiddleware("refresh"), (req, res) => {
+router.get("/refresh", verifyTokenMiddleware("refresh"), async (req, res) => {
 	try {
-		const { id, name, surname, role } = req.user;
-
-		const tokenPairs = generateTokenPairs({
-			id,
-			name,
-			surname,
-			role
-		});
-
+		const tokenPairs = await authService.refresh(req.user);
 		return res.send(tokenPairs);
 	} catch (error) {
 		const { status, message } = statusCodeMessage(error);
