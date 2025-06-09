@@ -47,7 +47,7 @@ router.put(
 	async (req, res) => {
 		try {
 			const answer = await articleService.setArticleReaction(
-				req.user.id,
+				req.user,
 				req.params.id,
 				req.body.reaction
 			);

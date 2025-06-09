@@ -4,10 +4,12 @@ const { QueryTypes } = require("sequelize");
 const MESSAGES = require("@constants/messages");
 const { Article, Category, User, Reaction } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException, deleteFile } = require("@utils");
-const { REACTIONS_QUERY, USER_ASSOC_ARTICLE_QUERY } = require("@constants/sql");
-const { getReactionsGateway } = require("@sockets");
-const { handleNewArticleNotification } = require("@sockets/handlers");
-
+const { REACTIONS_QUERY } = require("@constants/sql");
+const {
+	handleNewArticleNotification,
+	handleNotifyAdminAboutReaction,
+	handleSendReactions
+} = require("@sockets/handlers");
 const articlesPath = "user_uploads/articles";
 
 exports.getArticle = async (id, userData) => {
@@ -233,17 +235,12 @@ exports.getArticleReactions = async (id) => {
 	};
 };
 
-exports.setArticleReaction = async (user_id, article_id, reaction) => {
-	const reactionsGateway = getReactionsGateway();
-	const roomName = `article-${article_id}`;
-	const userReaction = reaction.toUpperCase();
+exports.setArticleReaction = async (userData, article_id, reaction) => {
+	let userReaction = reaction.toUpperCase();
 
-	const [checkResult] = await conn.query(USER_ASSOC_ARTICLE_QUERY, {
-		replacements: { article_id },
-		type: QueryTypes.SELECT
-	});
+	const foundArticle = await Article.findByPk(article_id);
 
-	if (!checkResult.exist) {
+	if (!foundArticle) {
 		const notFoundException = createHttpException(
 			404,
 			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
@@ -252,17 +249,22 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 	}
 
 	const foundReaction = await Reaction.findOne({
-		where: { user_id, article_id }
+		where: { user_id: userData.id, article_id }
 	});
 
 	if (foundReaction) {
 		if (foundReaction.reaction === userReaction) {
+			userReaction = null; // If the user is trying to remove their reaction
 			await foundReaction.destroy();
 		} else {
 			await foundReaction.update({ reaction: userReaction });
 		}
 	} else {
-		await Reaction.create({ user_id, article_id, reaction: userReaction });
+		await Reaction.create({
+			user_id: userData.id,
+			article_id,
+			reaction: userReaction
+		});
 	}
 
 	const [result] = await conn.query(REACTIONS_QUERY, {
@@ -275,10 +277,12 @@ exports.setArticleReaction = async (user_id, article_id, reaction) => {
 		dislikes: parseInt(result.dislikes)
 	};
 
-	reactionsGateway.to(roomName).emit("reaction:toggle", {
-		article_id,
-		...reactionsData
-	});
+	const socketNotiffs = [
+		handleSendReactions(article_id, reactionsData, userReaction),
+		handleNotifyAdminAboutReaction(foundArticle, userData, userReaction)
+	];
+
+	await Promise.all(socketNotiffs);
 
 	return reactionsData;
 };

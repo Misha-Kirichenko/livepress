@@ -1,21 +1,32 @@
-let reactionsGateway = null;
+let articleInteractionsGateway = null;
 let userNotificationsGateway = null;
+let adminNotificationsGateway = null;
 
-const reactionsGatewaySetup = require("./gateways/reactions");
-const userNotificationsGatewaySetup = require("./gateways/userNotifications");
+const {
+	ARTICLE_INTERACTIONS,
+	USER_NOTIFICATIONS,
+	ADMIN_NOTIFICATIONS
+} = require("@constants/sockets/namespaces");
+const {
+	articleInteractionsGatewaySetup,
+	userNotificationsGatewaySetup,
+	adminNotificationsGatewaySetup
+} = require("./gateways");
 
 const setupSocketNamespaces = (io) => {
-	reactionsGateway = io.of("/reactions");
-	userNotificationsGateway = io.of("/notifications/user");
-	reactionsGatewaySetup(reactionsGateway);
+	articleInteractionsGateway = io.of(ARTICLE_INTERACTIONS);
+	userNotificationsGateway = io.of(USER_NOTIFICATIONS);
+	adminNotificationsGateway = io.of(ADMIN_NOTIFICATIONS);
+	articleInteractionsGatewaySetup(articleInteractionsGateway);
 	userNotificationsGatewaySetup(userNotificationsGateway);
+	adminNotificationsGatewaySetup(adminNotificationsGateway);
 };
 
-const getReactionsGateway = () => {
-	if (!reactionsGateway) {
-		throw new Error("Reactions namespace is not initialized");
+const getArticleInteractionsGateway = () => {
+	if (!articleInteractionsGateway) {
+		throw new Error("Article Interactions namespace is not initialized");
 	}
-	return reactionsGateway;
+	return articleInteractionsGateway;
 };
 
 const getUserNotificationsGateway = () => {
@@ -25,8 +36,16 @@ const getUserNotificationsGateway = () => {
 	return userNotificationsGateway;
 };
 
+const getAdminNotificationsGateway = () => {
+	if (!adminNotificationsGateway) {
+		throw new Error("Admin notifications gateway is not initialized");
+	}
+	return adminNotificationsGateway;
+};
+
 module.exports = {
 	setupSocketNamespaces,
-	getReactionsGateway,
-	getUserNotificationsGateway
+	getArticleInteractionsGateway,
+	getUserNotificationsGateway,
+	getAdminNotificationsGateway
 };

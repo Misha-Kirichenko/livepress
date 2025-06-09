@@ -8,6 +8,8 @@ const isValidDateString = require("./isValidDateString");
 const MIGRATION_UTIL = require("./migrationUtil");
 const createMulterInstance = require("./multer");
 const { deleteFile } = require("./file");
+const socketRoomUtil = require("./socketRoomUtil");
+const { createRedisKey } = require("./redisUtil");
 
 module.exports = {
 	createHttpException,
@@ -19,5 +21,7 @@ module.exports = {
 	MIGRATION_UTIL,
 	deleteFile,
 	createMulterInstance,
-	notificationUtil
+	notificationUtil,
+	socketRoomUtil,
+	createRedisKey
 };

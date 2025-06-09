@@ -5,30 +5,30 @@ import { useContext, useState } from "react";
 import AuthContext from "../../contexts/AuthContext";
 import ProfileMenu from "./ProfileMenu";
 import { useNavigate } from "react-router";
-import { useNotificationsSocket } from "../../hooks/useNotificationsSocket";
+import { useNotifications } from "../../hooks/useNotifications";
 import NotificationService from "../../api/notificationService";
 
 const Header = () => {
 	const userData = useContext(AuthContext);
 	const [open, setOpen] = useState(false);
 	const [notifications, setNotifications] = useState([]);
-	useNotificationsSocket(userData.role, setNotifications);
+	useNotifications(userData.role, setNotifications);
 	const navigate = useNavigate();
 
 	const handleToggle = () => setOpen((prev) => !prev);
 	const handleClose = () => setOpen(false);
 
-	const handleNavigate = async (article_id) => {
-		await handleMarkAsRead(article_id);
+	const handleNavigate = async (notif_id, article_id) => {
+		await handleMarkAsRead(notif_id);
 		navigate(`/article/${article_id}`);
 	};
 
-	const handleMarkAsRead = async (article_id) => {
+	const handleMarkAsRead = async (notif_id) => {
 		try {
-			const response = await NotificationService.markAsRead(article_id);
+			const response = await NotificationService.markAsRead(notif_id);
 			if (response.status === 204) {
 				setNotifications((prev) =>
-					prev.filter((article) => article.article_id !== article_id)
+					prev.filter((article) => article.notif_id !== notif_id)
 				);
 			}
 		} catch (error) {
@@ -98,9 +98,9 @@ const Header = () => {
 										</Typography>
 									</Box>
 								) : (
-									notifications.map((notif, index) => (
+									notifications.map((notif) => (
 										<Box
-											key={`${notif.article_id}-${index}`}
+											key={`${notif.notif_id}`}
 											sx={{
 												display: "flex",
 												justifyContent: "space-between",
@@ -111,7 +111,9 @@ const Header = () => {
 										>
 											<Box
 												sx={{ flex: 1, cursor: "pointer" }}
-												onClick={() => handleNavigate(notif.article_id)}
+												onClick={() =>
+													handleNavigate(notif.notif_id, notif.article_id)
+												}
 											>
 												<Typography
 													variant="subtitle2"
@@ -127,7 +129,7 @@ const Header = () => {
 													{notif.message}
 												</Typography>
 												<Typography variant="caption" color="gray">
-													{notif.createDate}
+													{notif.formattedCreateDate}
 												</Typography>
 											</Box>
 
@@ -140,7 +142,7 @@ const Header = () => {
 													marginLeft: "10px",
 													cursor: "pointer"
 												}}
-												onClick={() => handleMarkAsRead(notif.article_id)}
+												onClick={() => handleMarkAsRead(notif.notif_id)}
 											>
 												<Typography
 													variant="caption"

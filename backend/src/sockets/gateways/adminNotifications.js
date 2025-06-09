@@ -4,11 +4,11 @@ const checkSocketRolesMiddleware = require("../middlewares/checkSocketRolesMiddl
 
 module.exports = (namespaceInstance) => {
 	namespaceInstance.use(authMiddleware);
-	namespaceInstance.use(checkSocketRolesMiddleware(["USER"]));
+	namespaceInstance.use(checkSocketRolesMiddleware(["ADMIN"]));
 	namespaceInstance.on("connection", (socket) => {
-		const roomName = socketRoomUtil.getUserNotificationRoom(socket.user.id);
-		const userFullName = `${socket.user.name} ${socket.user.surname}`;
-		console.log(`${userFullName} joined room`, roomName);
+		const roomName = socketRoomUtil.getAdminNotificationRoom(socket.user.id);
+		const adminFullName = `${socket.user.name} ${socket.user.surname}`;
+		console.log(`${adminFullName} joined room`, roomName);
 		socket.join(roomName);
 	});
 };

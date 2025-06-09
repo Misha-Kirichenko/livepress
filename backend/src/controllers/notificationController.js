@@ -27,24 +27,18 @@ router.get("/", verifyTokenMiddleware("access"), async (req, res) => {
 });
 
 router.delete(
-	"/:article_id",
+	"/:notif_id",
 	verifyTokenMiddleware("access"),
 	async (req, res) => {
 		try {
-			const { article_id } = req.params;
+			const { notif_id } = req.params;
 			const { role, id: user_id } = req.user;
 			switch (role) {
 				case "ADMIN":
-					await notificationService.removeAdminNotification(
-						user_id,
-						article_id
-					);
+					await notificationService.removeAdminNotification(user_id, notif_id);
 					break;
 				case "USER":
-					await notificationService.removeUserNotifications(
-						user_id,
-						article_id
-					);
+					await notificationService.removeUserNotification(user_id, notif_id);
 					break;
 				default:
 					return res.status(403).send({ message: MESSAGES.ERRORS.FORBIDDEN });

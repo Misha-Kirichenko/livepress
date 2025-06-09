@@ -7,7 +7,7 @@ const UserReactions = ({ reactions, handleReaction }) => {
 	const { likes, dislikes, myReaction } = reactions;
 
 	const getIconColor = (type) => {
-		if (myReaction === type) return "primary.main";
+		if (myReaction && myReaction === type) return "primary.main";
 		return "text.disabled";
 	};
 
@@ -35,7 +35,7 @@ UserReactions.propTypes = {
 	reactions: PropTypes.shape({
 		likes: PropTypes.number.isRequired,
 		dislikes: PropTypes.number.isRequired,
-		myReaction: PropTypes.string,
+		myReaction: PropTypes.string
 	}).isRequired,
 	handleReaction: PropTypes.func.isRequired
 };

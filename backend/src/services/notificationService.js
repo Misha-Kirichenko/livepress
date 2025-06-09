@@ -1,19 +1,24 @@
 const userNotificationCacheService = require("@services/userNotificationCacheService");
+const adminNotificationCacheService = require("@services/adminNotificationCacheService");
 
 exports.getAllUserNotifications = async (user_id) => {
-	const notifications = await userNotificationCacheService.getAllUserNotif(
+	const notifications = await userNotificationCacheService.getAllUserNotifs(
 		user_id
 	);
-
-	if (notifications.length) {
-		notifications.sort((a, b) => b.createDate - a.createDate);
-	}
-
 	return notifications;
 };
 
-exports.removeUserNotifications = async (user_id, article_id) => {
-	await userNotificationCacheService.removeArticleNotif(user_id, article_id);
+exports.removeUserNotification = async (user_id, notifId) => {
+	await userNotificationCacheService.removeNotif(user_id, notifId);
 };
 
-exports.getAllAdminNotifications = async () => {};
+exports.getAllAdminNotifications = async (admin_id) => {
+	const notifications = await adminNotificationCacheService.getAllAdminNotifs(
+		admin_id
+	);
+	return notifications;
+};
+
+exports.removeAdminNotification = async (admin_id, notif_id) => {
+	await adminNotificationCacheService.removeNotif(admin_id, notif_id);
+};

@@ -18,7 +18,7 @@ import NotFound from "../../components/NotFound";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
 import Loader from "../../components/Loader";
-import { useArticleReactionsSocket } from "../../hooks/useArticleReactionsSocket";
+import { useArticleInteractions } from "../../hooks/useArticleInteractions";
 import Header from "../../components/Header";
 
 const Article = () => {
@@ -34,7 +34,7 @@ const Article = () => {
 		setReactions
 	} = useReactions(id);
 
-	useArticleReactionsSocket(id, setReactions);
+	useArticleInteractions(id, setReactions);
 
 	const formattedDate = useMemo(() => {
 		if (!article?.createDate) return "";
