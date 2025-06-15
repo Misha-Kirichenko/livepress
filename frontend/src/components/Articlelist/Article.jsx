@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import EditIcon from "@mui/icons-material/Edit";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -9,11 +10,16 @@ import Typography from "@mui/material/Typography";
 import TextButton from "../TextButton";
 import { Box } from "@mui/material";
 import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
+import { useContext } from "react";
+import AuthContext from "../../contexts/AuthContext";
 
 const Article = ({ articleData }) => {
 	const navigate = useNavigate();
-	const { id, title, category, author, img, createDate } = articleData;
+	const { id, title, category, author, author_id, img, createDate } =
+		articleData;
 	const [[firstNameInit], [lastNameInit]] = author.split(" ");
+
+	const { role, id: user_id } = useContext(AuthContext);
 
 	const date = new Date(Number(createDate));
 
@@ -25,17 +31,24 @@ const Article = ({ articleData }) => {
 
 	return (
 		<Card sx={{ maxWidth: 345, width: "100%" }}>
-			<CardHeader
-				avatar={
-					<Avatar aria-label="author">{`${firstNameInit}.${lastNameInit}`}</Avatar>
-				}
-				title={title}
-				subheader={formattedDate}
-			/>
+			<Box sx={{ display: "flex", justifyContent: "space-between" }}>
+				<CardHeader
+					avatar={
+						<Avatar aria-label="author">{`${firstNameInit}.${lastNameInit}`}</Avatar>
+					}
+					title={title}
+					subheader={formattedDate}
+				/>
+				{role == "ADMIN" && author_id === user_id && (
+					<Link to={`/article/edit/${id}`}>
+						<EditIcon sx={{ cursor: "pointer" }} />
+					</Link>
+				)}
+			</Box>
 			<CardMedia
 				component="img"
 				height="194"
-				image={img ? `${API_HOST}/${img}`: DEFAULT_IMG_URL}
+				image={img ? `${API_HOST}/${img}` : DEFAULT_IMG_URL}
 				alt={title}
 			/>
 			<CardContent>
@@ -71,8 +84,9 @@ Article.propTypes = {
 		id: PropTypes.number.isRequired,
 		title: PropTypes.string.isRequired,
 		category: PropTypes.string.isRequired,
-		author: PropTypes.string.isRequired,
+		author: PropTypes?.string,
 		img: PropTypes.string,
+		author_id: PropTypes.number.isRequired,
 		subOnCategory: PropTypes.bool,
 		createDate: PropTypes.string
 	})

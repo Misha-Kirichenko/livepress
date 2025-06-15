@@ -7,7 +7,7 @@ exports.getMyList = async (userData, query) => {
 	let subscriptions = null;
 	let total = 0;
 
-	const { role, id } = userData;
+	const { role, id: user_id } = userData;
 	const { page = 1, limit = 10, search, category_id } = query;
 
 	const searchCondition = search
@@ -22,29 +22,42 @@ exports.getMyList = async (userData, query) => {
 	if (role === "ADMIN") {
 		total = await Article.count({
 			where: {
-				author_id: id,
 				...searchCondition,
 				...(category_id && { category_id })
 			}
 		});
 		articles = await Article.findAll({
 			where: {
-				author_id: id,
 				...searchCondition,
 				...(category_id && { category_id })
 			},
-			attributes: { exclude: ["category_id", "author_id", "description"] },
-			include: {
-				model: Category,
-				as: "category",
-				attributes: ["name"]
-			},
-			order: [["createDate", "DESC"]],
+			attributes: { exclude: ["category_id", "description"] },
+			include: [
+				{
+					model: Category,
+					as: "category",
+					attributes: ["name"]
+				},
+				{
+					model: User,
+					as: "author",
+					attributes: ["name", "surname"]
+				}
+			],
+			order: [
+				[
+					conn.literal(
+						`CASE WHEN "author_id" = '${user_id}' THEN 0 ELSE 1 END`
+					),
+					"ASC"
+				],
+				["createDate", "DESC"]
+			],
 			limit,
 			offset: (page - 1) * limit
 		});
 	} else {
-		const user = await User.findByPk(id, {
+		const user = await User.findByPk(user_id, {
 			include: {
 				model: Category,
 				as: "subscriptions",
@@ -69,7 +82,7 @@ exports.getMyList = async (userData, query) => {
 					? { category_id }
 					: { category_id: { [Op.in]: subscriptions } })
 			},
-			attributes: { exclude: ["category_id", "author_id", "description"] },
+			attributes: { exclude: ["category_id", "description"] },
 			include: [
 				{
 					model: Category,

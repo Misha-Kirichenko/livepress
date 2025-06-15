@@ -65,6 +65,38 @@ class ArticleService {
 
 		return response;
 	}
+
+	static async updateArticle(id, body) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+
+		const modifiedBody = {
+			title: body.title,
+			description: body.description,
+			category_id: body.category,
+			...(body.imageFile && { img: body.imageFile }),
+			removeImage: body.removeImage
+		};
+
+		const formData = new FormData();
+
+		for (const field in modifiedBody) {
+			formData.append(field, modifiedBody[field]);
+		}
+
+		const response = await api.patch(
+			`${ArticleService.apibase}/${id}`,
+			formData,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "multipart/form-data"
+				}
+			}
+		);
+
+		return response;
+	}
 }
 
 export default ArticleService;

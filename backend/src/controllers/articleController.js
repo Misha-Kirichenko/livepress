@@ -53,7 +53,6 @@ router.put(
 			);
 			return res.send(answer);
 		} catch (error) {
-			console.log("article reactions error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}

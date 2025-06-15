@@ -129,9 +129,8 @@ exports.createArticle = async (req) => {
 };
 
 exports.updateArticle = async (req) => {
+	let relativeFilePath;
 	const { file, body, user, params } = req;
-	let relativeFilePath = null;
-
 	const foundArticle = await Article.findByPk(params.id);
 
 	if (!foundArticle) {
@@ -154,13 +153,18 @@ exports.updateArticle = async (req) => {
 		relativeFilePath = path
 			.join(articlesPath, file.filename)
 			.replace(/\\/g, "/");
-
+		if (foundArticle.img) {
+			await deleteFile(foundArticle.img);
+		}
+	} else if (JSON.parse(body.removeImage) && foundArticle.img) {
+		relativeFilePath = null;
+		delete body.removeImage;
 		await deleteFile(foundArticle.img);
 	}
 
 	const articleData = {
 		...body,
-		...(relativeFilePath && { img: relativeFilePath })
+		...(relativeFilePath !== undefined && { img: relativeFilePath })
 	};
 
 	if (body.category_id) {

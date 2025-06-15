@@ -32,7 +32,12 @@ const updateArticleMiddleware = [
 	body("category_id")
 		.optional()
 		.isInt({ min: 1 })
-		.withMessage("category id must be an integer")
+		.withMessage("category id must be an integer"),
+
+	body("removeImage")
+		.optional()
+		.isBoolean()
+		.withMessage("removeImage must be a boolean")
 ];
 
 module.exports = updateArticleMiddleware;

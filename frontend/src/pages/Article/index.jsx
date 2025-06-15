@@ -14,12 +14,13 @@ import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
 import { useContext, useMemo } from "react";
-import NotFound from "../../components/NotFound";
+import ErrorPage from "../../components/ErrorPage";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
 import Loader from "../../components/Loader";
 import { useArticleInteractions } from "../../hooks/useArticleInteractions";
 import Header from "../../components/Header";
+import GoHome from "../../components/GoHome";
 
 const Article = () => {
 	const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Article = () => {
 	}, [article?.createDate]);
 
 	if (isArticleLoading) return <Loader type="block" width="250" height="250" />;
-	if (!article) return <NotFound text="Article" />;
+	if (!article) return <ErrorPage text="Article" status={404} />;
 
 	const {
 		title,
@@ -100,11 +101,15 @@ const Article = () => {
 					<Avatar sx={{ width: 32, height: 32 }}>{authorInitials}</Avatar>
 					<Typography variant="body2" color="text.secondary">
 						<b>author:&nbsp;</b>
-						{userData.role === "USER"
-							? author.fullName
-							: userData.id === author.id
-							? "Me"
-							: author.fullName}
+						{userData.role === "USER" ? (
+							author.fullName
+						) : userData.id === author.author_id ? (
+							<u>
+								<i>ME</i>
+							</u>
+						) : (
+							author.fullName
+						)}
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
 						{formattedDate}
@@ -115,7 +120,9 @@ const Article = () => {
 						sx={{ fontStyle: "italic", ml: "auto" }}
 					>
 						Category: {category}
-						{!subOnCategory ? " (not subscribed)" : ""}
+						{userData.role === "USER" && !subOnCategory
+							? " (not subscribed)"
+							: ""}
 					</Typography>
 				</Stack>
 
@@ -129,7 +136,9 @@ const Article = () => {
 
 				<Box
 					component="div"
-					dangerouslySetInnerHTML={{ __html: he.decode(description) }}
+					dangerouslySetInnerHTML={{
+						__html: he.decode(he.decode(description))
+					}}
 				/>
 				<Divider sx={{ mb: 2 }} />
 
@@ -146,6 +155,9 @@ const Article = () => {
 						}}
 					/>
 				)}
+				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+					<GoHome />
+				</Box>
 			</Box>
 		</>
 	);
