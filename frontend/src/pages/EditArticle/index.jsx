@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import * as he from "he";
 import { useNavigate, useParams } from "react-router";
 import AuthContext from "../../contexts/AuthContext";
 import ErrorPage from "../../components/ErrorPage";
@@ -11,6 +10,7 @@ import "react-quill/dist/quill.snow.css";
 import ArticleForm from "../../components/ArticleForm";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
+import hasVisibleText from "../../utils/hasVisibleText";
 
 const EditArticle = () => {
 	const navigate = useNavigate();
@@ -44,18 +44,10 @@ const EditArticle = () => {
 
 	const [formData, setFormData] = useState(initialFormData);
 
-	const hasVisibleText = (html) => {
-		const withoutTags = html.replace(/<[^>]*>/g, "");
-		const decoded = he.decode(withoutTags);
-		return decoded.trim().length > 0;
-	};
-
 	const isFormChanged = () => {
-		const decodedRefFormData = {
-			...initialFormDataRef.current,
-			description: he.decode(he.decode(initialFormDataRef.current.description))
-		};
-		return JSON.stringify(formData) !== JSON.stringify(decodedRefFormData);
+		return (
+			JSON.stringify(formData) !== JSON.stringify(initialFormDataRef.current)
+		);
 	};
 
 	useEffect(() => {
@@ -63,7 +55,8 @@ const EditArticle = () => {
 			const initialData = {
 				title: article.title || "",
 				description: article.description || "",
-				category: categories.find((c) => c.name === article.category)?.id || "",
+				category:
+					categories?.find((c) => c.name === article.category)?.id || "",
 				imageFile: null,
 				img: article.img || "",
 				previewUrl: article.img

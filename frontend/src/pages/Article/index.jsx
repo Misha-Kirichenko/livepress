@@ -6,7 +6,8 @@ import {
 	Divider,
 	CardMedia
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router";
+import EditIcon from "@mui/icons-material/Edit";
+import { Link, useNavigate, useParams } from "react-router";
 import * as he from "he";
 import AuthContext from "../../contexts/AuthContext";
 import useArticle from "../../hooks/useArticle";
@@ -124,6 +125,11 @@ const Article = () => {
 							? " (not subscribed)"
 							: ""}
 					</Typography>
+					{userData.role == "ADMIN" && userData.id === author.author_id && (
+						<Link to={`/article/edit/${id}`}>
+							<EditIcon sx={{ cursor: "pointer" }} />
+						</Link>
+					)}
 				</Stack>
 
 				<Divider sx={{ mb: 2 }} />
@@ -137,7 +143,7 @@ const Article = () => {
 				<Box
 					component="div"
 					dangerouslySetInnerHTML={{
-						__html: he.decode(he.decode(description))
+						__html: he.decode(description)
 					}}
 				/>
 				<Divider sx={{ mb: 2 }} />

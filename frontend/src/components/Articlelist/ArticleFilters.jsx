@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import PostAddIcon from "@mui/icons-material/PostAdd";
 import PropTypes from "prop-types";
 import {
 	Box,
@@ -7,12 +8,16 @@ import {
 	Select,
 	FormControl,
 	InputLabel,
-	Grid
+	Grid,
+	Button
 } from "@mui/material";
 import CategoriesContext from "../../contexts/CategoriesContext";
+import AuthContext from "../../contexts/AuthContext";
+import { Link } from "react-router";
 
 const ArticleFilters = ({ queryParamsData }) => {
 	const categories = useContext(CategoriesContext);
+	const { role } = useContext(AuthContext);
 	const { queryParams, handleSetParam } = queryParamsData;
 	const { search, category_id } = queryParams;
 
@@ -80,8 +85,24 @@ const ArticleFilters = ({ queryParamsData }) => {
 					xs={12}
 					sm={6}
 					md={4}
-					sx={{ display: "flex", justifyContent: "flex-end" }}
-				></Grid>
+					sx={{
+						display: "flex",
+						justifyContent: "flex-end",
+						alignItems: "flex-start"
+					}}
+				>
+					{role === "ADMIN" && (
+						<Link to="/article/create" style={{ textDecoration: "none" }}>
+							<Button
+								variant="contained"
+								startIcon={<PostAddIcon />}
+								color="primary"
+							>
+								Create New Article
+							</Button>
+						</Link>
+					)}
+				</Grid>
 			</Grid>
 		</Box>
 	);

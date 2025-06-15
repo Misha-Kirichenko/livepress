@@ -66,10 +66,7 @@ class ArticleService {
 		return response;
 	}
 
-	static async updateArticle(id, body) {
-		const token = AuthService.getToken("access");
-		if (!token) throw new Error("No access token available");
-
+	static getFinalFormData(body) {
 		const modifiedBody = {
 			title: body.title,
 			description: body.description,
@@ -84,6 +81,13 @@ class ArticleService {
 			formData.append(field, modifiedBody[field]);
 		}
 
+		return formData;
+	}
+
+	static async updateArticle(id, body) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+		const formData = ArticleService.getFinalFormData(body);
 		const response = await api.patch(
 			`${ArticleService.apibase}/${id}`,
 			formData,
@@ -94,6 +98,19 @@ class ArticleService {
 				}
 			}
 		);
+
+		return response;
+	}
+	static async createArticle(body) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+		const formData = ArticleService.getFinalFormData(body);
+		const response = await api.post(ArticleService.apibase, formData, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "multipart/form-data"
+			}
+		});
 
 		return response;
 	}

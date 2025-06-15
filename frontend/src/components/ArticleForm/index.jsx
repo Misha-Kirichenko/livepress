@@ -12,7 +12,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import * as he from "he";
 import PropTypes from "prop-types";
-import ReactQuill from "react-quill";
+import { Editor } from "react-draft-wysiwyg";
+import { EditorState, ContentState, convertToRaw } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { useState, useEffect, useRef } from "react";
 
 const ArticleForm = ({
 	formData,
@@ -28,6 +33,30 @@ const ArticleForm = ({
 		handleSave,
 		handleRemoveImage
 	} = articleDataHandlers;
+
+	const [editorState, setEditorState] = useState(() =>
+		EditorState.createEmpty()
+	);
+	const isInitializedRef = useRef(false);
+
+	useEffect(() => {
+		if (!isInitializedRef.current && description) {
+			const contentBlock = htmlToDraft(he.decode(description));
+			if (contentBlock) {
+				const contentState = ContentState.createFromBlockArray(
+					contentBlock.contentBlocks
+				);
+				setEditorState(EditorState.createWithContent(contentState));
+				isInitializedRef.current = true;
+			}
+		}
+	}, [description]);
+
+	const handleEditorChange = (newState) => {
+		setEditorState(newState);
+		const html = draftToHtml(convertToRaw(newState.getCurrentContent()));
+		handleChangeArticleData("description")({ target: { value: html } });
+	};
 
 	return (
 		<Container maxWidth="md">
@@ -76,6 +105,7 @@ const ArticleForm = ({
 						<DeleteIcon />
 						Remove image
 					</Button>
+
 					{imageFile && (
 						<Typography variant="body2" sx={{ mt: 1 }}>
 							{imageFile.name}
@@ -141,10 +171,19 @@ const ArticleForm = ({
 
 				<Box>
 					<InputLabel sx={{ mb: 1 }}>Description</InputLabel>
-					<ReactQuill
-						theme="snow"
-						value={he.decode(description)}
-						onChange={handleChangeArticleData("description")}
+					<Editor
+						editorState={editorState}
+						wrapperClassName="demo-wrapper"
+						editorClassName="demo-editor"
+						onEditorStateChange={handleEditorChange}
+						editorStyle={{
+							direction: "ltr",
+							textAlign: "left",
+							border: "1px solid gray",
+							borderRadius: "4px",
+							padding: "8px",
+							minHeight: "200px"
+						}}
 					/>
 					{validationErrors.description && (
 						<Typography
@@ -193,7 +232,7 @@ ArticleForm.propTypes = {
 		handleChangeArticleData: PropTypes.func.isRequired,
 		handleImageChange: PropTypes.func.isRequired,
 		handleSave: PropTypes.func.isRequired,
-		handleRemoveImage: PropTypes.func.isRequired
+		handleRemoveImage: PropTypes.func
 	}).isRequired,
 	mode: PropTypes.oneOf(["edit", "create"]).isRequired
 };

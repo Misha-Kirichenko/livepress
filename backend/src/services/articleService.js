@@ -125,7 +125,7 @@ exports.createArticle = async (req) => {
 
 	await handleNewArticleNotification(requiredArticleData);
 
-	return { msg: MESSAGE_UTIL.SUCCESS.CREATED("article") };
+	return { id: articlePlain.id, msg: MESSAGE_UTIL.SUCCESS.CREATED("article") };
 };
 
 exports.updateArticle = async (req) => {
