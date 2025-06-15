@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import * as he from "he";
 import { useNavigate, useParams } from "react-router";
 import AuthContext from "../../contexts/AuthContext";
@@ -14,6 +14,7 @@ import AuthService from "../../api/authService";
 
 const EditArticle = () => {
 	const navigate = useNavigate();
+	const initialFormDataRef = useRef(null);
 
 	const initialFormData = {
 		title: "",
@@ -49,9 +50,17 @@ const EditArticle = () => {
 		return decoded.trim().length > 0;
 	};
 
+	const isFormChanged = () => {
+		const decodedRefFormData = {
+			...initialFormDataRef.current,
+			description: he.decode(he.decode(initialFormDataRef.current.description))
+		};
+		return JSON.stringify(formData) !== JSON.stringify(decodedRefFormData);
+	};
+
 	useEffect(() => {
 		if (article) {
-			setFormData({
+			const initialData = {
 				title: article.title || "",
 				description: article.description || "",
 				category: categories.find((c) => c.name === article.category)?.id || "",
@@ -61,7 +70,9 @@ const EditArticle = () => {
 					? `${API_HOST}/${article.img}`
 					: DEFAULT_IMG_URL,
 				removeImage: false
-			});
+			};
+			setFormData(initialData);
+			initialFormDataRef.current = initialData;
 		}
 	}, [article, categories]);
 
@@ -107,11 +118,11 @@ const EditArticle = () => {
 				}
 			}
 			if (hasErrors) return;
-			const answer = await ArticleService.updateArticle(article_id, formData);
-			if (answer.status === 200) {
-				console.log(formData);
-				// navigate(`/article/${article_id}`);
+			const formChanged = isFormChanged();
+			if (formChanged) {
+				await ArticleService.updateArticle(article_id, formData);
 			}
+			navigate(`/article/${article_id}`);
 		} catch (error) {
 			if (error.response?.status === 401) {
 				AuthService.clearTokens();

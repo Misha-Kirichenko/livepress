@@ -33,9 +33,6 @@ module.exports = (conn) => {
 				beforeUpdate: (result) => {
 					delete result.dataValues.createDate;
 				},
-				beforeSave: (result) => {
-					convertToEntities(result, "description");
-				},
 			}
 		}
 	);
