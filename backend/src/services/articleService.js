@@ -125,7 +125,7 @@ exports.createArticle = async (req) => {
 
 	await handleNewArticleNotification(requiredArticleData);
 
-	return { id: articlePlain.id, msg: MESSAGE_UTIL.SUCCESS.CREATED("article") };
+	return { id: articlePlain.id, message: MESSAGE_UTIL.SUCCESS.CREATED("article") };
 };
 
 exports.updateArticle = async (req) => {
@@ -186,7 +186,7 @@ exports.updateArticle = async (req) => {
 	}
 
 	await foundArticle.save();
-	return { msg: MESSAGE_UTIL.SUCCESS.UPDATED("article") };
+	return { message: MESSAGE_UTIL.SUCCESS.UPDATED("article") };
 };
 
 exports.deleteArticle = async (user_id, article_id) => {
@@ -209,9 +209,11 @@ exports.deleteArticle = async (user_id, article_id) => {
 	}
 
 	await foundArticle.destroy();
-	await deleteFile(foundArticle.img);
+	if (foundArticle.img) {
+		await deleteFile(foundArticle.img);
+	}
 
-	return { msg: MESSAGE_UTIL.SUCCESS.DELETED("article") };
+	return { message: MESSAGE_UTIL.SUCCESS.DELETED("article") };
 };
 
 exports.getArticleReactions = async (id) => {

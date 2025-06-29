@@ -26,7 +26,7 @@ const useArticles = (queryParams) => {
 		fetchArticles();
 	}, [navigate, queryParams]);
 
-	return { articles, isLoading };
+	return { articles, isLoading, setArticles };
 };
 
 export default useArticles;

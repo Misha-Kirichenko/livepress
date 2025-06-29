@@ -114,6 +114,17 @@ class ArticleService {
 
 		return response;
 	}
+	static async deleteArticle(id) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+		const response = await api.delete(`${ArticleService.apibase}/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		return response;
+	}
 }
 
 export default ArticleService;

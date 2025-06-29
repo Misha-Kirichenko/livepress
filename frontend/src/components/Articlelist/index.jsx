@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Grid, Container, Pagination, Box } from "@mui/material";
-import Article from "./Article";
 import ArticleFilters from "./ArticleFilters";
 import useArticles from "../../hooks/useArticles";
+import Article from "./Article";
 
 const ArticleList = () => {
 	const [queryParams, setQueryParams] = useState({
@@ -19,7 +19,7 @@ const ArticleList = () => {
 		}));
 	};
 
-	const { articles, isLoading } = useArticles(queryParams);
+	const { articles, setArticles, isLoading } = useArticles(queryParams);
 
 	if (isLoading) {
 		return "Loading...";
@@ -33,7 +33,13 @@ const ArticleList = () => {
 			<Grid container spacing={4}>
 				{articles.data.map((article, index) => (
 					<Grid item key={`${article.id}-${index}`} xs={12} sm={6} md={4}>
-						<Article articleData={article} />
+						<Article
+							articleData={article}
+							setArticles={setArticles}
+							pageTotal={articles.data.length}
+							queryParams={queryParams}
+							handleSetParam={handleSetParam}
+						/>
 					</Grid>
 				))}
 			</Grid>
