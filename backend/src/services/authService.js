@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
 const { createHttpException, generateTokenPairs } = require("@utils");
 const conn = require("@config/conn");
 const { User } = require("@models")(conn);
@@ -15,7 +16,7 @@ exports.login = async (login, password) => {
 
 	const foundUser = await User.scope("withPassword").findOne({
 		where: {
-			email: login
+			[Op.or]: [{ email: login }, { nickName: login }]
 		}
 	});
 
@@ -26,7 +27,8 @@ exports.login = async (login, password) => {
 				id: foundUser.id,
 				name: foundUser.name,
 				surname: foundUser.surname,
-				role: foundUser.role
+				role: foundUser.role,
+				nickName: foundUser.nickName
 			});
 
 			foundUser.lastLogin = Date.now();
@@ -44,7 +46,7 @@ exports.login = async (login, password) => {
 };
 
 exports.refresh = async (userData) => {
-	const { id, name, surname, role } = userData;
+	const { id, name, surname, nickName, role } = userData;
 	const foundUser = await User.findByPk(id);
 
 	if (!foundUser) {
@@ -63,7 +65,8 @@ exports.refresh = async (userData) => {
 		id,
 		name,
 		surname,
-		role
+		role,
+		nickName
 	});
 
 	return tokenPairs;

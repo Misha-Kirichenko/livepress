@@ -1,8 +1,7 @@
 const conn = require("@config/conn");
 const { getUserNotificationsGateway } = require("@sockets");
 const { notificationUtil, socketRoomUtil } = require("@utils");
-const { Op } = require("sequelize");
-const { User, UserCategory } = require("@models")(conn);
+const { UserCategory } = require("@models")(conn);
 const { ARTICLE } = require("@constants/sockets/events");
 const userNotificationCacheService = require("@services/userNotificationCacheService");
 

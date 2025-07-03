@@ -8,39 +8,54 @@ module.exports = (conn) => {
 			const transaction = await conn.transaction();
 			try {
 				const [tableExists] = await queryInterface.sequelize.query(
-					MIGRATION_UTIL.SELECT_TABLE("users"),
+					MIGRATION_UTIL.SELECT_TABLE("comments"),
 					{ transaction }
 				);
 
 				if (!tableExists.length) {
 					await queryInterface.createTable(
-						"users",
+						"comments",
 						{
 							id: {
 								type: DataTypes.INTEGER,
 								primaryKey: true,
 								autoIncrement: true
 							},
-							name: { type: DataTypes.STRING, allowNull: false },
-							surname: { type: DataTypes.STRING, allowNull: false },
-							email: { type: DataTypes.STRING, unique: true, allowNull: false },
-							nickName: { type: DataTypes.STRING, unique: true, allowNull: false },
-							password: { type: DataTypes.STRING, allowNull: false },
-							role: {
-								type: DataTypes.STRING,
-								defaultValue: "USER",
+							user_id: {
+								type: DataTypes.INTEGER,
 								allowNull: false,
-								validate: { isIn: [["USER", "ADMIN"]] }
+								references: {
+									model: "users",
+									key: "id"
+								}
 							},
-							lastLogin: {
+							article_id: {
+								type: DataTypes.INTEGER,
+								allowNull: false,
+								references: {
+									model: "articles",
+									key: "id"
+								}
+							},
+							createDate: {
+								type: DataTypes.BIGINT,
+								allowNull: false,
+								defaultValue: Date.now
+							},
+							updateDate: {
 								type: DataTypes.BIGINT,
 								allowNull: false,
 								defaultValue: 0
+							},
+							text: {
+								type: DataTypes.TEXT,
+								allowNull: false
 							}
 						},
 						{ transaction }
 					);
-					console.log(MESSAGE_UTIL.SUCCESS.MIGRATION("users"));
+
+					console.log(MESSAGE_UTIL.SUCCESS.MIGRATION("comments"));
 				}
 				await transaction.commit();
 			} catch (error) {
@@ -49,7 +64,7 @@ module.exports = (conn) => {
 			}
 		},
 		down: async () => {
-			await queryInterface.dropTable("users");
+			await queryInterface.dropTable("comments");
 		}
 	};
 };

@@ -24,15 +24,15 @@ module.exports = (conn) => {
 			createDate: {
 				type: DataTypes.BIGINT,
 				allowNull: false,
-				defaultValue: Date.now
+				defaultValue: () => Date.now()
 			}
 		},
 		{
 			timestamps: false,
 			hooks: {
-				beforeUpdate: (result) => {
-					delete result.dataValues.createDate;
-				},
+				beforeCreate: (instance) => {
+					convertToEntities(instance, "description");
+				}
 			}
 		}
 	);

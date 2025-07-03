@@ -10,25 +10,39 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Link, useNavigate, useParams } from "react-router";
 import * as he from "he";
 import AuthContext from "../../contexts/AuthContext";
+import CommentItem from "../../components/CommentItem";
 import useArticle from "../../hooks/useArticle";
 import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
 import Reactions from "../../components/Reactions";
 import useReactions from "../../hooks/useReactions";
 import { useContext, useMemo } from "react";
 import ErrorPage from "../../components/ErrorPage";
+import CommentInput from "../../components/CommentInput";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";
 import Loader from "../../components/Loader";
 import { useArticleInteractions } from "../../hooks/useArticleInteractions";
 import Header from "../../components/Header";
 import GoHome from "../../components/GoHome";
+import useArticleComments from "../../hooks/useArticleComments";
 
 const Article = () => {
+	const commentsLimit = 5;
 	const navigate = useNavigate();
 	const userData = useContext(AuthContext);
 	const { id } = useParams();
 
 	const { article, isLoading: isArticleLoading, setArticle } = useArticle(id);
+
+	const {
+		comments,
+		isLoading: isCommentsLoading,
+		isLoadingMore,
+		loadMore,
+		setComments,
+		hasMore
+	} = useArticleComments(id, commentsLimit);
+
 	const {
 		reactions,
 		isLoading: isReactionsLoading,
@@ -52,6 +66,8 @@ const Article = () => {
 	}, [article?.createDate]);
 
 	if (isArticleLoading) return <Loader type="block" width="250" height="250" />;
+	if (isCommentsLoading)
+		return <Loader type="block" width="250" height="250" />;
 	if (!article) return <ErrorPage text="Article" status={404} />;
 
 	const {
@@ -161,6 +177,49 @@ const Article = () => {
 						}}
 					/>
 				)}
+				<Typography variant="h6" gutterBottom mt={4}>
+					Comments
+				</Typography>
+				{userData.role === "USER" && (
+					<CommentInput setComments={setComments} articleId={id} />
+				)}
+				<Box mt={2}>
+					{comments.data.map((comment, index) => (
+						<CommentItem
+							key={`comment-${index}-${comment.id}`}
+							commentData={comment}
+							setComments={setComments}
+						/>
+					))}
+
+					{hasMore && (
+						<Box display="flex" justifyContent="center" mt={2}>
+							<button
+								onClick={loadMore}
+								disabled={isLoadingMore}
+								style={{
+									padding: "8px 16px",
+									border: "1px solid gray",
+									background: "white",
+									cursor: "pointer",
+									borderRadius: "4px"
+								}}
+							>
+								{isLoadingMore ? (
+									<Loader
+										type="inline"
+										height="25px"
+										width="25px"
+										align="flex-start"
+									/>
+								) : (
+									"Load More"
+								)}
+							</button>
+						</Box>
+					)}
+				</Box>
+
 				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
 					<GoHome />
 				</Box>

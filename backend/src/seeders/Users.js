@@ -25,6 +25,7 @@ module.exports = (conn) => {
 							"password123",
 							parseInt(process.env.PASSWORD_SALT_ROUNDS)
 						),
+						nickName: faker.internet.userName(name, surname).toLowerCase(),
 						role: "USER",
 						lastLogin
 					};
@@ -40,7 +41,8 @@ module.exports = (conn) => {
 							"adminPassword123",
 							parseInt(process.env.PASSWORD_SALT_ROUNDS)
 						),
-						role: "ADMIN"
+						role: "ADMIN",
+						nickName: "johndoe1"
 					},
 					{
 						name: "Jane",
@@ -51,7 +53,8 @@ module.exports = (conn) => {
 							"adminPassword123",
 							parseInt(process.env.PASSWORD_SALT_ROUNDS)
 						),
-						role: "ADMIN"
+						role: "ADMIN",
+						nickName: "janedoe1"
 					}
 				];
 
@@ -59,13 +62,13 @@ module.exports = (conn) => {
 
 				const values = [...users, ...admins]
 					.map(
-						({ name, surname, email, password, role, lastLogin }) =>
-							`('${name}', '${surname}', '${email}', '${password}', '${role}', '${lastLogin}')`
+						({ name, surname, email, password, role, nickName, lastLogin }) =>
+							`('${name}', '${surname}', '${email}', '${password}', '${role}', '${nickName}','${lastLogin}')`
 					)
 					.join(",");
 
 				await queryInterface.sequelize.query(`
-					INSERT INTO users (name, surname, email, password, role, "lastLogin")
+					INSERT INTO users (name, surname, email, password, role, "nickName", "lastLogin")
 					VALUES ${values}
 					ON CONFLICT (email) DO NOTHING;
 				`);
