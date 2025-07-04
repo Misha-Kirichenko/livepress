@@ -6,8 +6,10 @@ import AuthContext from "../../contexts/AuthContext";
 import CommentService from "../../api/commentService";
 import AuthService from "../../api/authService";
 import { useNavigate } from "react-router";
+import { useSnackbar } from "../../contexts/SnackbarProvider";
 
 const CommentInput = ({ setComments, articleId }) => {
+	const { showSnackbar } = useSnackbar();
 	const navigate = useNavigate();
 	const { name, surname } = useContext(AuthContext);
 	const [comment, setComment] = useState("");
@@ -28,7 +30,11 @@ const CommentInput = ({ setComments, articleId }) => {
 					AuthService.clearTokens();
 					navigate("/login");
 				}
-				console.error("Failed to submit comment:", error);
+				showSnackbar({
+					open: true,
+					message: error.response.data.message,
+					severity: "error"
+				});
 			} finally {
 				setComment("");
 			}

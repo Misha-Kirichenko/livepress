@@ -55,6 +55,21 @@ class CommentService {
 
 		return response;
 	}
+
+	static async updateArticleComment(commentId, body) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+
+		const response = await api.patch(
+			`${CommentService.apibase}/${commentId}`,
+			body,
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
+
+		return response;
+	}
 }
 
 export default CommentService;
