@@ -65,7 +65,9 @@ const ArticleFilters = ({ queryParamsData }) => {
 						<InputLabel>Category</InputLabel>
 						<Select
 							value={category_id}
-							onChange={(e) => handleSetParam("category_id", e.target.value)}
+							onChange={(e) =>
+								handleSetParam("category_id", String(e.target.value))
+							}
 							label="Category"
 							displayEmpty
 							fullWidth

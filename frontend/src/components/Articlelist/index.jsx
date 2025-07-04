@@ -1,23 +1,47 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Grid, Container, Pagination, Box } from "@mui/material";
 import ArticleFilters from "./ArticleFilters";
 import useArticles from "../../hooks/useArticles";
 import Article from "./Article";
 
 const ArticleList = () => {
-	const [queryParams, setQueryParams] = useState({
-		page: 1,
-		search: "",
-		category_id: "",
-		limit: 12
-	});
+	const initialQueryParams = localStorage.getItem("queryParams")
+		? JSON.parse(localStorage.getItem("queryParams"))
+		: {
+				page: 1,
+				search: "",
+				category_id: "",
+				limit: 12
+		  };
+	const [queryParams, setQueryParams] = useState(initialQueryParams);
 
-	const handleSetParam = (paramName, value) => {
-		setQueryParams((prev) => ({
-			...prev,
-			[paramName]: value
-		}));
-	};
+	const handleSetParam = useCallback(
+		(paramName, value) => {
+			setQueryParams((prev) => {
+				const updatedParams = {
+					...prev,
+					[paramName]: value,
+					...(paramName === "search" && { page: 1 })
+				};
+
+				const queryParamsEmpty = (params) => {
+					const copy = { ...params };
+					delete copy.page;
+					delete copy.limit;
+					return Object.values(copy).every((val) => !val) && params.page === 1;
+				};
+
+				if (queryParamsEmpty(updatedParams)) {
+					localStorage.removeItem("queryParams");
+				} else {
+					localStorage.setItem("queryParams", JSON.stringify(updatedParams));
+				}
+
+				return updatedParams;
+			});
+		},
+		[setQueryParams]
+	);
 
 	const { articles, setArticles, isLoading } = useArticles(queryParams);
 
