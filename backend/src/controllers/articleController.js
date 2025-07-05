@@ -13,7 +13,7 @@ const {
 	createArticleMiddleware,
 	updateArticleMiddleware
 } = require("@middlewares/article");
-const handleValidationErrorsMiddleware = require("@middlewares/handleValidationErrorsMiddleware");
+const {handleValidationErrorsMiddleware} = require("@middlewares");
 
 const uploadArticleImg = createMulterInstance("articles");
 
@@ -121,6 +121,7 @@ router.delete(
 			);
 			return res.send(answer);
 		} catch (error) {
+			console.log("article delete error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}

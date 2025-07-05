@@ -24,14 +24,10 @@ module.exports = (conn) => {
 		foreignKey: "user_id",
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",
-		hooks: true
 	});
 
 	UserCategory.belongsTo(Category, {
 		foreignKey: "category_id",
-		onDelete: "CASCADE",
-		onUpdate: "CASCADE",
-		hooks: true
 	});
 
 	Article.belongsTo(User, {
@@ -39,7 +35,6 @@ module.exports = (conn) => {
 		as: "author",
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",
-		hooks: true
 	});
 
 	Article.belongsTo(Category, {
@@ -47,7 +42,6 @@ module.exports = (conn) => {
 		as: "category",
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",
-		hooks: true
 	});
 
 	Category.hasMany(Article, {
@@ -63,7 +57,6 @@ module.exports = (conn) => {
 	Reaction.belongsTo(Article, {
 		foreignKey: "article_id",
 		onDelete: "CASCADE",
-		hooks: true,
 		onUpdate: "CASCADE",
 		as: "article"
 	});
@@ -71,23 +64,20 @@ module.exports = (conn) => {
 	Article.hasMany(Comment, {
 		foreignKey: "article_id",
 		as: "comments",
-		onDelete: "CASCADE",
-		hooks: true
 	});
 
 	Comment.belongsTo(Article, {
 		foreignKey: "article_id",
 		as: "article",
 		onDelete: "CASCADE",
-		hooks: true
+		onUpdate: "CASCADE",
 	});
 
 	Comment.belongsTo(User, {
 		foreignKey: "user_id",
 		as: "author",
 		onDelete: "CASCADE",
-		hooks: true,
-		onUpdate: "CASCADE"
+		onUpdate: "CASCADE",
 	});
 
 	return {

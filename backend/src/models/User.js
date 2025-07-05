@@ -1,5 +1,5 @@
 const { Sequelize: DataTypes } = require("sequelize");
-const { mutateDates } = require("./hooks");
+const { convertToEntities } = require("./hooks");
 
 module.exports = (conn) => {
 	const User = conn.define(
@@ -15,6 +15,16 @@ module.exports = (conn) => {
 			email: { type: DataTypes.STRING, unique: true, allowNull: false },
 			nickName: { type: DataTypes.STRING, unique: true, allowNull: false },
 			password: { type: DataTypes.STRING, allowNull: false },
+			isBlocked: {
+				type: DataTypes.BOOLEAN,
+				defaultValue: false,
+				allowNull: false
+			},
+			blockReason: {
+				type: DataTypes.STRING,
+				allowNull: true,
+				defaultValue: null
+			},
 			role: {
 				type: DataTypes.STRING,
 				defaultValue: "USER",
@@ -31,6 +41,11 @@ module.exports = (conn) => {
 			scopes: {
 				withPassword: {
 					attributes: {}
+				}
+			},
+			hooks: {
+				beforeSave: (result) => {
+					convertToEntities(result, "blockReason");
 				}
 			}
 		}

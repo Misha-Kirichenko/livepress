@@ -22,7 +22,6 @@ import CommentService from "../../api/commentService";
 import AuthService from "../../api/authService";
 import { useNavigate } from "react-router";
 
-
 const modes = ["view", "edit"];
 
 const CommentItem = ({ commentData, setComments }) => {
@@ -38,6 +37,12 @@ const CommentItem = ({ commentData, setComments }) => {
 	const lnameInitial = author.surname[0].toUpperCase();
 
 	const initials = `${fnameInitial}.${lnameInitial}`;
+
+	const isAuthorBlocked = author.isBlocked;
+	const canSeeBlockedInfo = userData.role === "ADMIN" && isAuthorBlocked;
+	const blockReasonString = author.blockReason
+		? `Author is blocked for: ${author.blockReason}`
+		: "Author is blocked";
 
 	const handleDelete = async () => {
 		try {
@@ -139,7 +144,9 @@ const CommentItem = ({ commentData, setComments }) => {
 			sx={{
 				p: 2,
 				mb: 2,
-				position: "relative"
+				position: "relative",
+				opacity: canSeeBlockedInfo ? 0.6 : 1,
+				backgroundColor: canSeeBlockedInfo ? "#f5f5f5" : "inherit"
 			}}
 		>
 			<Box
@@ -167,9 +174,12 @@ const CommentItem = ({ commentData, setComments }) => {
 								<DeleteIcon fontSize="small" />
 							</IconButton>
 						</Tooltip>
-						<Tooltip title="Block user">
+						<Tooltip title={isAuthorBlocked ? "Unblock user" : "Block user"}>
 							<IconButton size="small" onClick={handleBlock}>
-								<PersonOffIcon fontSize="small" />
+								<PersonOffIcon
+									fontSize="small"
+									color={isAuthorBlocked ? "error" : "inherit"}
+								/>
 							</IconButton>
 						</Tooltip>
 					</>
@@ -209,9 +219,21 @@ const CommentItem = ({ commentData, setComments }) => {
 					{mode === modes[0] ? (
 						<Typography
 							variant="body1"
-							sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+							sx={{
+								whiteSpace: "pre-wrap",
+								wordBreak: "break-word",
+								fontStyle: canSeeBlockedInfo ? "italic" : "normal"
+							}}
 						>
-							{he.decode(text)}
+							{canSeeBlockedInfo ? (
+								<>
+									<Typography variant="body2" color="error" fontWeight="bold">
+										{blockReasonString}
+									</Typography>
+								</>
+							) : (
+								he.decode(text)
+							)}
 						</Typography>
 					) : mode === modes[1] &&
 					  userData.role === "USER" &&
@@ -272,7 +294,9 @@ CommentItem.propTypes = {
 		author: PropTypes.shape({
 			name: PropTypes.string.isRequired,
 			surname: PropTypes.string.isRequired,
-			nickName: PropTypes.string.isRequired
+			nickName: PropTypes.string.isRequired,
+			isBlocked: PropTypes.bool,
+			blockReason: PropTypes.string
 		}).isRequired
 	}).isRequired,
 	setComments: PropTypes.func.isRequired

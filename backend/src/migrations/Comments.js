@@ -27,7 +27,9 @@ module.exports = (conn) => {
 								references: {
 									model: "users",
 									key: "id"
-								}
+								},
+								onUpdate: "CASCADE",
+								onDelete: "CASCADE"
 							},
 							article_id: {
 								type: DataTypes.INTEGER,
@@ -35,7 +37,9 @@ module.exports = (conn) => {
 								references: {
 									model: "articles",
 									key: "id"
-								}
+								},
+								onUpdate: "CASCADE",
+								onDelete: "CASCADE"
 							},
 							createDate: {
 								type: DataTypes.BIGINT,

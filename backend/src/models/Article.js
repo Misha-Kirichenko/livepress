@@ -1,5 +1,5 @@
 const { Sequelize: DataTypes } = require("sequelize");
-const { mutateDates, convertToEntities } = require("./hooks");
+const { convertToEntities } = require("./hooks");
 
 module.exports = (conn) => {
 	const Article = conn.define(

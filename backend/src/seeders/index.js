@@ -11,14 +11,16 @@ const categoriesSeeder = require("./Categories")(conn);
 const articlesSeeder = require("./Articles")(conn);
 const userCategoriesSeeder = require("./UserCategories")(conn);
 const reactionsSeeder = require("./Reactions")(conn);
+const commentsSeeder = require("./Comments")(conn);
 
 (async () => {
 	try {
 		const seeders = [usersSeeder.up(20), categoriesSeeder.up()];
 		await Promise.all(seeders);
 		await articlesSeeder.up(100);
-		await userCategoriesSeeder.up(80);
-		await reactionsSeeder.up(400);
+		await userCategoriesSeeder.up(40);
+		await reactionsSeeder.up(1000);
+		await commentsSeeder.up(1000);
 	} catch (error) {
 		console.error("seeding error:", error);
 	}

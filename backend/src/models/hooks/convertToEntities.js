@@ -2,7 +2,10 @@ const he = require("he");
 
 const convertToEntities = (result, key) => {
 	if (result.changed(key)) {
-		result[key] = he.encode(result[key]);
+		const value = result[key];
+		if (typeof value === "string") {
+			result[key] = he.encode(value);
+		}
 	}
 };
 

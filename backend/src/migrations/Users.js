@@ -24,8 +24,22 @@ module.exports = (conn) => {
 							name: { type: DataTypes.STRING, allowNull: false },
 							surname: { type: DataTypes.STRING, allowNull: false },
 							email: { type: DataTypes.STRING, unique: true, allowNull: false },
-							nickName: { type: DataTypes.STRING, unique: true, allowNull: false },
+							nickName: {
+								type: DataTypes.STRING,
+								unique: true,
+								allowNull: false
+							},
 							password: { type: DataTypes.STRING, allowNull: false },
+							isBlocked: {
+								type: DataTypes.BOOLEAN,
+								defaultValue: false,
+								allowNull: false
+							},
+							blockReason: {
+								type: DataTypes.STRING,
+								allowNull: true,
+								defaultValue: null
+							},
 							role: {
 								type: DataTypes.STRING,
 								defaultValue: "USER",

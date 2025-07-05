@@ -12,6 +12,6 @@ module.exports = {
 		UPDATE_FIELDS: "At least one field must be provided for the update",
 		UNKNOWN_USER: "No matching user found",
 		UNACCEPTABLE: "value is unacceptable",
-		UNACCEPTABLE_FIELDS: "unacceptable fields",
+		UNACCEPTABLE_FIELDS: "unacceptable fields"
 	},
 };

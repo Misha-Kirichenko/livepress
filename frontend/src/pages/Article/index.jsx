@@ -178,7 +178,7 @@ const Article = () => {
 					/>
 				)}
 				<Typography variant="h6" gutterBottom mt={4}>
-					Comments
+					{comments.data.length ? "Comments" : "No comments yet"}
 				</Typography>
 				{userData.role === "USER" && (
 					<CommentInput setComments={setComments} articleId={id} />

@@ -4,10 +4,12 @@ const {
 	categoryController,
 	articleController,
 	notificationController,
-	commentController
+	commentController,
+	adminController
 } = require("./controllers");
 
 router.use("/auth", authController);
+router.use("/admin", adminController);
 router.use("/categories", categoryController);
 router.use("/article", articleController);
 router.use("/notifications", notificationController);

@@ -4,7 +4,7 @@ const { Comment, User } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException } = require("@utils");
 const {} = require("@sockets/handlers");
 
-exports.getArticleComments = async (article_id, query) => {
+exports.getArticleComments = async (userRole, article_id, query) => {
 	const [foundArticle] = await conn.query(
 		"SELECT EXISTS(SELECT 1 FROM articles WHERE id = :id) AS exist",
 		{ replacements: { id: article_id }, type: QueryTypes.SELECT }
@@ -19,22 +19,46 @@ exports.getArticleComments = async (article_id, query) => {
 	}
 
 	const { page = 1, limit = 10 } = query;
+
+	const where = { article_id };
+
+	const include = [
+		{
+			model: User,
+			as: "author",
+			attributes: [
+				"name",
+				"surname",
+				"nickName",
+				...(userRole === "ADMIN" ? ["isBlocked", "blockReason"] : [])
+			],
+			...(userRole === "USER" ? { where: { isBlocked: false } } : {})
+		}
+	];
+
 	const comments = await Comment.findAll({
-		where: { article_id },
+		where,
+		include,
 		order: [["createDate", "DESC"]],
 		limit,
 		offset: (page - 1) * limit,
-		include: [
-			{
-				model: User,
-				as: "author",
-				attributes: ["name", "surname", "nickName"]
-			}
-		],
 		attributes: { exclude: ["article_id", "user_id"] }
 	});
 
-	const total = await Comment.count({ where: { article_id } });
+	const countOptions = { where };
+
+	if (userRole === "USER") {
+		countOptions.include = [
+			{
+				model: User,
+				as: "author",
+				where: { isBlocked: false }
+			}
+		];
+	}
+
+	const total = await Comment.count(countOptions);
+
 	return {
 		data: comments,
 		total
@@ -42,19 +66,6 @@ exports.getArticleComments = async (article_id, query) => {
 };
 
 exports.createArticleComment = async (user, article_id, text) => {
-	const [foundArticle] = await conn.query(
-		"SELECT EXISTS(SELECT 1 FROM articles WHERE id = :id) AS exist",
-		{ replacements: { id: article_id }, type: QueryTypes.SELECT }
-	);
-
-	if (!foundArticle.exist) {
-		const notFoundException = createHttpException(
-			404,
-			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
-		);
-		throw notFoundException;
-	}
-
 	const createdComment = await Comment.create({
 		user_id: user.id,
 		article_id,

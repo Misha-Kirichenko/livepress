@@ -13,8 +13,8 @@ module.exports = (conn) => {
 			if (total < amount) {
 				const usersToSeed = Math.abs(amount - total);
 				const users = [...Array(usersToSeed)].map(() => {
-					const name = faker.name.firstName().replace(/'/g, "");
-					const surname = faker.name.lastName().replace(/'/g, "");
+					const name = faker.name.firstName().replace(/'/g, "&#39;");
+					const surname = faker.name.lastName().replace(/'/g, "&#39;");
 					const lastLogin = faker.time.recent("unix");
 
 					return {

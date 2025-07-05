@@ -13,6 +13,7 @@ router.get(
 	async (req, res) => {
 		try {
 			const answer = await commentService.getArticleComments(
+				req.user.role,
 				req.params.articleId,
 				req.query
 			);
@@ -43,7 +44,7 @@ router.post(
 			if (error.name === "SequelizeForeignKeyConstraintError") {
 				return res
 					.status(404)
-					.send({ message: MESSAGE_UTIL.ERRORS.NOT_FOUND("Comment") });
+					.send({ message: MESSAGE_UTIL.ERRORS.NOT_FOUND("Article") });
 			}
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
@@ -63,7 +64,6 @@ router.patch(
 			);
 			return res.send(answer);
 		} catch (error) {
-			console.log("update comment error", error);
 			if (error.name === "SequelizeValidationError") {
 				return res.status(422).send({ message: "Comment can't be empty" });
 			}

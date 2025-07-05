@@ -23,8 +23,8 @@ module.exports = (conn) => {
 				const articlesToSeed = Math.abs(amount - total);
 				const articles = [...Array(articlesToSeed)].map(() => {
 					return {
-						title: faker.lorem.sentence().replace(/'/g, ""),
-						description: faker.lorem.paragraphs(3).replace(/'/g, ""),
+						title: faker.lorem.sentence().replace(/'/g, "&#39;"),
+						description: faker.lorem.paragraphs(3).replace(/'/g, "&#39;"),
 						category_id: faker.random.arrayElement(categoryIds),
 						img: null,
 						author_id: faker.random.arrayElement(adminIds),
