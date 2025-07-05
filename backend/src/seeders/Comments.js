@@ -1,7 +1,5 @@
 const faker = require("faker");
-
-const FIVE_DAYS_IN_MS = 5 * 24 * 60 * 60 * 1000;
-const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+const { FIVE_MINUTES_IN_MS, FIVE_DAYS_IN_MS } = require("./time.constants");
 
 module.exports = (conn) => {
 	const queryInterface = conn.getQueryInterface();
