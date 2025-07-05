@@ -1,26 +1,14 @@
-import {
-	Avatar,
-	Box,
-	Typography,
-	Stack,
-	IconButton,
-	Paper,
-	Tooltip,
-	TextField,
-	Button
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import PersonOffIcon from "@mui/icons-material/PersonOff"; // более понятная иконка
+import { Avatar, Box, Typography, Stack, Paper } from "@mui/material";
 import AuthContext from "../../contexts/AuthContext";
 import PropTypes from "prop-types";
-import * as he from "he";
-import ConfirmModal from "../ConfirmModal"; // Assuming you have a ConfirmModal component
 import { useContext, useState } from "react";
 import { useSnackbar } from "../../contexts/SnackbarProvider";
 import CommentService from "../../api/commentService";
 import AuthService from "../../api/authService";
 import { useNavigate } from "react-router";
+import ActionsPanel from "./ActionsPanel";
+import ItemText from "./ItemText";
+import EditPanel from "./EditPanel";
 
 const modes = ["view", "edit"];
 
@@ -40,9 +28,6 @@ const CommentItem = ({ commentData, setComments }) => {
 
 	const isAuthorBlocked = author.isBlocked;
 	const canSeeBlockedInfo = userData.role === "ADMIN" && isAuthorBlocked;
-	const blockReasonString = author.blockReason
-		? `Author is blocked for: ${author.blockReason}`
-		: "Author is blocked";
 
 	const handleDelete = async () => {
 		try {
@@ -149,132 +134,38 @@ const CommentItem = ({ commentData, setComments }) => {
 				backgroundColor: canSeeBlockedInfo ? "#f5f5f5" : "inherit"
 			}}
 		>
-			<Box
-				sx={{
-					position: "absolute",
-					top: 8,
-					right: 8,
-					display: "flex",
-					gap: 1
-				}}
-			>
-				<ConfirmModal
-					open={deleteModalOpen}
-					onClose={setDeleteModalOpen}
-					onConfirm={handleDelete}
-					message={`Are you sure you want to delete comment: <b>"${he.decode(
-						text
-					)}"</b>?`}
-				/>
-
-				{userData.role === "ADMIN" ? (
-					<>
-						<Tooltip title="Delete comment">
-							<IconButton size="small" onClick={() => setDeleteModalOpen(true)}>
-								<DeleteIcon fontSize="small" />
-							</IconButton>
-						</Tooltip>
-						<Tooltip title={isAuthorBlocked ? "Unblock user" : "Block user"}>
-							<IconButton size="small" onClick={handleBlock}>
-								<PersonOffIcon
-									fontSize="small"
-									color={isAuthorBlocked ? "error" : "inherit"}
-								/>
-							</IconButton>
-						</Tooltip>
-					</>
-				) : userData.role === "USER" &&
-				  author.nickName === userData.nickName ? (
-					<>
-						<Tooltip title="Delete my comment">
-							<IconButton size="small" onClick={() => setDeleteModalOpen(true)}>
-								<DeleteIcon fontSize="small" />
-							</IconButton>
-						</Tooltip>
-						<Tooltip title="Edit my comment">
-							<IconButton size="small" onClick={() => handleEditMode(modes[1])}>
-								<EditIcon fontSize="small" />
-							</IconButton>
-						</Tooltip>
-					</>
-				) : (
-					""
-				)}
-			</Box>
+			<ActionsPanel
+				comment={commentData}
+				deleteModalOpen={deleteModalOpen}
+				setDeleteModalOpen={setDeleteModalOpen}
+				handleEditMode={handleEditMode}
+				handleDelete={handleDelete}
+				handleBlock={handleBlock}
+			/>
 
 			<Stack direction="row" spacing={2} alignItems="flex-start">
 				<Avatar>{initials}</Avatar>
 				<Box flex={1}>
 					<Typography variant="subtitle2">
 						{fullName}&nbsp;
-						<sup>
-							<b>
-								<i>{author.nickName}</i>
-							</b>
+						<sup style={{ fontWeight: "bold", fontStyle: "italic" }}>
+							{author.nickName}
 						</sup>
 					</Typography>
 					<Typography variant="body2" color="text.secondary" mb={1}>
 						{formattedDate}
 					</Typography>
 					{mode === modes[0] ? (
-						<Typography
-							variant="body1"
-							sx={{
-								whiteSpace: "pre-wrap",
-								wordBreak: "break-word",
-								fontStyle: canSeeBlockedInfo ? "italic" : "normal"
-							}}
-						>
-							{canSeeBlockedInfo ? (
-								<>
-									<Typography variant="body2" color="error" fontWeight="bold">
-										{blockReasonString}
-									</Typography>
-								</>
-							) : (
-								he.decode(text)
-							)}
-						</Typography>
+						<ItemText text={text} author={author} userRole={userData.role} />
 					) : mode === modes[1] &&
 					  userData.role === "USER" &&
 					  author.nickName === userData.nickName ? (
-						<Box sx={{ flex: 1 }}>
-							<TextField
-								fullWidth
-								multiline
-								minRows={3}
-								maxRows={6}
-								placeholder="Leave a comment..."
-								variant="outlined"
-								value={he.decode(editedText)}
-								onInput={(e) => setEditedText(e.target.value)}
-							/>
-							<Box
-								sx={{
-									display: "flex",
-									justifyContent: "flex-end",
-									mt: 1,
-									gap: 1
-								}}
-							>
-								<Button
-									variant="outlined"
-									size="small"
-									onClick={() => handleEditMode(modes[0])}
-								>
-									cancel
-								</Button>
-								{Boolean(editedText.trim().length) && (
-									<Button
-										variant="contained"
-										size="small"
-										onClick={handleSaveEdited}
-									>
-										save
-									</Button>
-								)}
-							</Box>
-						</Box>
+						<EditPanel
+							editedText={editedText}
+							setEditedText={setEditedText}
+							handleEditMode={handleEditMode}
+							handleSaveEdited={handleSaveEdited}
+						/>
 					) : (
 						""
 					)}

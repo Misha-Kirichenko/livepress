@@ -1,79 +1,45 @@
-import { Box, IconButton, Tooltip } from "@mui/material";
 import * as he from "he";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import ConfirmModal from "../ConfirmModal";
-import { useContext } from "react";
-import AuthContext from "../../contexts/AuthContext";
-
-const modes = ["view", "edit"];
+import { Box, Button, TextField } from "@mui/material";
 
 const EditPanel = ({
-	comment,
-	deleteModalOpen,
-	setDeleteModalOpen,
+	editedText,
+	setEditedText,
 	handleEditMode,
-	handleDelete
+	handleSaveEdited
 }) => {
-	const { userData } = useContext(AuthContext);
-	const { author, text } = comment;
-
-	const handleBlock = async () => {
-		console.log("handleBlock called");
-	};
-
 	return (
-		<Box
-			sx={{
-				position: "absolute",
-				top: 8,
-				right: 8,
-				display: "flex",
-				gap: 1
-			}}
-		>
-			<ConfirmModal
-				open={deleteModalOpen}
-				onClose={setDeleteModalOpen}
-				onConfirm={handleDelete}
-				message={`Are you sure you want to delete comment: <b>"${he.decode(
-					text
-				)}"</b>?`}
+		<Box sx={{ flex: 1 }}>
+			<TextField
+				fullWidth
+				multiline
+				minRows={3}
+				maxRows={6}
+				placeholder="Leave a comment..."
+				variant="outlined"
+				value={he.decode(editedText)}
+				onInput={(e) => setEditedText(e.target.value)}
 			/>
-
-			{userData.role === "ADMIN" ? (
-				<>
-					<Tooltip title="Delete comment">
-						<IconButton size="small" onClick={() => setDeleteModalOpen(true)}>
-							<DeleteIcon fontSize="small" />
-						</IconButton>
-					</Tooltip>
-					<Tooltip title={author.isBlocked ? "Unblock user" : "Block user"}>
-						<IconButton size="small" onClick={handleBlock}>
-							<PersonOffIcon
-								fontSize="small"
-								color={author.isBlocked ? "error" : "inherit"}
-							/>
-						</IconButton>
-					</Tooltip>
-				</>
-			) : userData.role === "USER" && author.nickName === userData.nickName ? (
-				<>
-					<Tooltip title="Delete my comment">
-						<IconButton size="small" onClick={() => setDeleteModalOpen(true)}>
-							<DeleteIcon fontSize="small" />
-						</IconButton>
-					</Tooltip>
-					<Tooltip title="Edit my comment">
-						<IconButton size="small" onClick={() => handleEditMode(modes[1])}>
-							<EditIcon fontSize="small" />
-						</IconButton>
-					</Tooltip>
-				</>
-			) : (
-				""
-			)}
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "flex-end",
+					mt: 1,
+					gap: 1
+				}}
+			>
+				<Button
+					variant="outlined"
+					size="small"
+					onClick={() => handleEditMode("view")}
+				>
+					cancel
+				</Button>
+				{Boolean(editedText.trim().length) && (
+					<Button variant="contained" size="small" onClick={handleSaveEdited}>
+						save
+					</Button>
+				)}
+			</Box>
 		</Box>
 	);
 };
