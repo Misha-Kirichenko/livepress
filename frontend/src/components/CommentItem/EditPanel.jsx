@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import * as he from "he";
 import { Box, Button, TextField } from "@mui/material";
 
@@ -17,7 +18,7 @@ const EditPanel = ({
 				placeholder="Leave a comment..."
 				variant="outlined"
 				value={he.decode(editedText)}
-				onInput={(e) => setEditedText(e.target.value)}
+				onChange={(e) => setEditedText(e.target.value)}
 			/>
 			<Box
 				sx={{
@@ -42,6 +43,13 @@ const EditPanel = ({
 			</Box>
 		</Box>
 	);
+};
+
+EditPanel.propTypes = {
+	editedText: PropTypes.string.isRequired,
+	setEditedText: PropTypes.func.isRequired,
+	handleEditMode: PropTypes.func.isRequired,
+	handleSaveEdited: PropTypes.func.isRequired
 };
 
 export default EditPanel;

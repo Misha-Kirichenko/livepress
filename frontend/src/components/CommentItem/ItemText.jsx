@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import * as he from "he";
 
@@ -34,6 +35,12 @@ const ItemText = ({ text, author, userRole }) => {
 			)}
 		</Box>
 	);
+};
+
+ItemText.propTypes = {
+	text: PropTypes.string.isRequired,
+	author: PropTypes.object.isRequired,
+	userRole: PropTypes.string.isRequired
 };
 
 export default ItemText;

@@ -1,3 +1,4 @@
+import * as he from "he";
 import { Avatar, Box, Typography, Stack, Paper } from "@mui/material";
 import AuthContext from "../../contexts/AuthContext";
 import PropTypes from "prop-types";
@@ -9,13 +10,14 @@ import { useNavigate } from "react-router";
 import ActionsPanel from "./ActionsPanel";
 import ItemText from "./ItemText";
 import EditPanel from "./EditPanel";
+import ConfirmModal from "../ConfirmModal";
 
 const modes = ["view", "edit"];
 
 const CommentItem = ({ commentData, setComments }) => {
 	const navigate = useNavigate();
 	const { showSnackbar } = useSnackbar();
-	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [confirmModalIsOpen, setConfirmModalIsOpen] = useState(false);
 	const [mode, setMode] = useState(modes[0]);
 	const [editedText, setEditedText] = useState("");
 	const userData = useContext(AuthContext);
@@ -48,7 +50,7 @@ const CommentItem = ({ commentData, setComments }) => {
 				severity: "error"
 			});
 		} finally {
-			setDeleteModalOpen(false);
+			setConfirmModalIsOpen(false);
 		}
 	};
 
@@ -84,10 +86,6 @@ const CommentItem = ({ commentData, setComments }) => {
 			setMode(modes[0]);
 			setEditedText("");
 		}
-	};
-
-	const handleBlock = () => {
-		console.log("Block user", commentData.author);
 	};
 
 	const handleEditMode = (mode) => {
@@ -130,17 +128,26 @@ const CommentItem = ({ commentData, setComments }) => {
 				p: 2,
 				mb: 2,
 				position: "relative",
-				opacity: canSeeBlockedInfo ? 0.6 : 1,
+				opacity: canSeeBlockedInfo ? 0.4 : 1,
 				backgroundColor: canSeeBlockedInfo ? "#f5f5f5" : "inherit"
 			}}
 		>
+			<ConfirmModal
+				open={confirmModalIsOpen}
+				onClose={setConfirmModalIsOpen}
+				onConfirm={handleDelete}
+				message={`Are you sure you want to delete comment: <b>"${he.decode(
+					text
+				)}"</b>?`}
+			/>
 			<ActionsPanel
-				comment={commentData}
-				deleteModalOpen={deleteModalOpen}
-				setDeleteModalOpen={setDeleteModalOpen}
-				handleEditMode={handleEditMode}
-				handleDelete={handleDelete}
-				handleBlock={handleBlock}
+				author={author}
+				handlers={{
+					setConfirmModalIsOpen,
+					handleEditMode,
+					handleDelete,
+					setComments
+				}}
 			/>
 
 			<Stack direction="row" spacing={2} alignItems="flex-start">
