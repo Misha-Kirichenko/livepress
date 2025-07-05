@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import * as he from "he";
+import { commentAuthorPropTypes } from "../../propTypes/commentAuthorPropTypes";
 
 const ItemText = ({ text, author, userRole }) => {
 	const blockReasonString = author.blockReason
@@ -39,7 +40,7 @@ const ItemText = ({ text, author, userRole }) => {
 
 ItemText.propTypes = {
 	text: PropTypes.string.isRequired,
-	author: PropTypes.object.isRequired,
+	author: commentAuthorPropTypes,
 	userRole: PropTypes.string.isRequired
 };
 

@@ -1,93 +1,69 @@
 import PropTypes from "prop-types";
-import {
-	Box,
-	IconButton,
-	Tooltip,
-	TextField,
-	Button,
-	Popover,
-	Typography
-} from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import { useContext, useState } from "react";
 import AuthContext from "../../contexts/AuthContext";
+import BlockReasonInput from "./BlockReasonInput";
+import { commentAuthorPropTypes } from "../../propTypes/commentAuthorPropTypes";
+import AdminService from "../../api/adminService";
+import AuthService from "../../api/authService";
+import { useNavigate } from "react-router";
+import { useSnackbar } from "../../contexts/SnackbarProvider";
 
 const ActionsPanel = ({ author, handlers }) => {
+	const navigate = useNavigate();
+	const { showSnackbar } = useSnackbar();
 	const userData = useContext(AuthContext);
 	const { setConfirmModalIsOpen, setComments, handleEditMode } = handlers;
 
 	const [anchorEl, setAnchorEl] = useState(null);
-	const [reason, setReason] = useState("");
-	const [error, setError] = useState("");
 
 	const handleOpenPopover = (event) => {
 		setAnchorEl(event.currentTarget);
 	};
 
-	const handleSetReason = (value) => {
-		setError("");
-		setReason(value);
-	};
-
-	const handleClosePopover = () => {
-		setAnchorEl(null);
-		setError("");
-		setReason("");
-	};
-
 	const open = Boolean(anchorEl);
 
-	const handleConfirmBlock = () => {
-		if (reason.trim().length < 10) {
-			setError("Reason must be at least 10 characters long.");
-			return;
+	const handleUnblock = async () => {
+		try {
+			await AdminService.toggleBlockUser(author.nickName, {
+				isBlocked: false
+			});
+			setComments((prev) => {
+				const modifiedComments = prev?.data.map((comment) => {
+					if (comment.author.nickName === author.nickName) {
+						return {
+							...comment,
+							author: {
+								...comment.author,
+								isBlocked: false,
+								reason: null
+							}
+						};
+					}
+					return comment;
+				});
+				return {
+					data: modifiedComments,
+					total: prev.total
+				};
+			});
+		} catch (error) {
+			if (error.response?.status === 401) {
+				AuthService.clearTokens();
+				navigate("/login");
+			}
+
+			if (error.response?.status === 400) {
+				showSnackbar({
+					open: true,
+					message: "Oops! Something went wrong...",
+					severity: "error"
+				});
+			}
 		}
-
-		setComments((prev) => {
-			const modifiedComments = prev?.data.map((comment) => {
-				if (comment.author.nickName === author.nickName) {
-					return {
-						...comment,
-						author: {
-							...comment.author,
-							isBlocked: true,
-							blockReason: reason
-						}
-					};
-				}
-				return comment;
-			});
-			return {
-				data: modifiedComments,
-				total: prev.total
-			};
-		});
-
-		handleClosePopover();
-	};
-
-	const handleUnblock = () => {
-		setComments((prev) => {
-			const modifiedComments = prev?.data.map((comment) => {
-				if (comment.author.nickName === author.nickName) {
-					return {
-						...comment,
-						author: {
-							...comment.author,
-							isBlocked: false,
-							reason: null
-						}
-					};
-				}
-				return comment;
-			});
-			return {
-				data: modifiedComments,
-				total: prev.total
-			};
-		});
 	};
 
 	return (
@@ -125,59 +101,10 @@ const ActionsPanel = ({ author, handlers }) => {
 						</IconButton>
 					</Tooltip>
 
-					<Popover
-						open={open}
-						anchorEl={anchorEl}
-						onClose={handleClosePopover}
-						anchorOrigin={{
-							vertical: "bottom",
-							horizontal: "center"
-						}}
-						transformOrigin={{
-							vertical: "top",
-							horizontal: "center"
-						}}
-					>
-						<Box
-							sx={{
-								p: 2,
-								display: "flex",
-								flexDirection: "column",
-								gap: 1,
-								minWidth: 220
-							}}
-						>
-							<TextField
-								label="Block reason"
-								value={reason}
-								onChange={(e) => handleSetReason(e.target.value)}
-								size="small"
-								multiline
-								rows={1}
-								autoFocus
-							/>
-
-							<Typography color="error" variant="span">
-								{error ? error : ""}
-							</Typography>
-							<Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-								<Button
-									variant="outlined"
-									size="small"
-									onClick={handleClosePopover}
-								>
-									Cancel
-								</Button>
-								<Button
-									variant="contained"
-									size="small"
-									onClick={handleConfirmBlock}
-								>
-									OK
-								</Button>
-							</Box>
-						</Box>
-					</Popover>
+					<BlockReasonInput
+						fields={{ open, anchorEl, author }}
+						handlers={{ setAnchorEl, setComments }}
+					/>
 				</>
 			) : userData.role === "USER" && author.nickName === userData.nickName ? (
 				<>
@@ -206,7 +133,7 @@ ActionsPanel.propTypes = {
 		setComments: PropTypes.func.isRequired,
 		handleEditMode: PropTypes.func.isRequired
 	}).isRequired,
-	author: PropTypes.object.isRequired
+	author: commentAuthorPropTypes
 };
 
 export default ActionsPanel;

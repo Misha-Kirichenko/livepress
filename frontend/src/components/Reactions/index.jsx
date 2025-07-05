@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import AdminReactions from "./AdminReactions";
 import UserReactions from "./UserReactions";
+import { reactionsPropTypes } from "../../propTypes/reactionsPropTypes";
 
 const Reactions = ({ role, reactions, isReactionsLoading, handleReaction }) => {
 	if (role === "ADMIN") {
@@ -20,9 +21,11 @@ const Reactions = ({ role, reactions, isReactionsLoading, handleReaction }) => {
 
 Reactions.propTypes = {
 	role: PropTypes.string.isRequired,
-	reactions: PropTypes.object.isRequired,
+	reactions: PropTypes.shape({
+		...reactionsPropTypes
+	}).isRequired,
 	handleReaction: PropTypes.func,
-	isReactionsLoading: PropTypes.bool.isRequired,
+	isReactionsLoading: PropTypes.bool.isRequired
 };
 
 export default Reactions;

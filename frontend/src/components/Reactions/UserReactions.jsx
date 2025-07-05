@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { Button, Stack } from "@mui/material";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { reactionsPropTypes } from "../../propTypes/reactionsPropTypes";
 
 const UserReactions = ({ reactions, handleReaction }) => {
 	const { likes, dislikes, myReaction } = reactions;
@@ -33,8 +34,7 @@ const UserReactions = ({ reactions, handleReaction }) => {
 
 UserReactions.propTypes = {
 	reactions: PropTypes.shape({
-		likes: PropTypes.number.isRequired,
-		dislikes: PropTypes.number.isRequired,
+		...reactionsPropTypes,
 		myReaction: PropTypes.string
 	}).isRequired,
 	handleReaction: PropTypes.func.isRequired
