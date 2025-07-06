@@ -46,7 +46,7 @@ module.exports = (conn) => {
 
 				await queryInterface.bulkInsert("articles", articles, {});
 
-				console.log("Articles seeder executed successfully.");
+				console.log("articles seeder executed successfully.");
 			}
 		},
 		down: () => {

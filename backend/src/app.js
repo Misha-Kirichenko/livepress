@@ -1,6 +1,5 @@
 require("dotenv").config();
 require("module-alias/register");
-
 const path = require("path");
 const express = require("express");
 const http = require("http");
@@ -12,6 +11,7 @@ const conn = require("@config/conn");
 const connectDB = require("@config/connectDB");
 const { setupSocketNamespaces } = require("@sockets");
 const CORS_SETTINGS = require("@config/corsSettings");
+const tasksArray = require("@services/cron");
 
 const app = express();
 const server = http.createServer(app);
@@ -32,6 +32,8 @@ app.use(
 app.use("/api", router);
 
 setupSocketNamespaces(io);
+
+tasksArray.forEach((task) => task.start());
 
 server.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);

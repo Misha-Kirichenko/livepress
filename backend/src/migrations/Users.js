@@ -32,8 +32,8 @@ module.exports = (conn) => {
 							password: { type: DataTypes.STRING, allowNull: false },
 							isBlocked: {
 								type: DataTypes.BOOLEAN,
-								defaultValue: false,
-								allowNull: false
+								allowNull: true,
+								defaultValue: null
 							},
 							blockReason: {
 								type: DataTypes.STRING,

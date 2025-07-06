@@ -7,7 +7,7 @@ const {
 } = require("@middlewares/auth");
 const { blockUserMiddleware } = require("@middlewares/admin");
 const { handleValidationErrorsMiddleware } = require("@middlewares");
-const adminService = require("@services/adminService");
+const { adminService } = require("@services/api/admin");
 
 router.patch(
 	"/block/:nickName",

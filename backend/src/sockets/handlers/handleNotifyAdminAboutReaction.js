@@ -1,5 +1,5 @@
 const { getAdminNotificationsGateway } = require("@sockets");
-const adminNotificationCacheService = require("@services/adminNotificationCacheService");
+const { adminNotificationCacheService } = require("@services/api/notification");
 const { ARTICLE } = require("@constants/sockets/events");
 const { notificationUtil, socketRoomUtil } = require("@utils");
 

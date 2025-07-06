@@ -3,13 +3,14 @@ const router = Router();
 const { statusCodeMessage, MESSAGE_UTIL } = require("@utils");
 const {
 	verifyTokenMiddleware,
-	checkRolesMiddleware
+	checkRolesMiddleware,
+	checkIsBlockedMiddleware
 } = require("@middlewares/auth");
-const commentService = require("@services/commentService");
+const { commentService } = require("@services/api/comment");
 
 router.get(
 	"/:articleId",
-	[verifyTokenMiddleware("access")],
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
 			const answer = await commentService.getArticleComments(
@@ -28,7 +29,11 @@ router.get(
 
 router.post(
 	"/:articleId",
-	[verifyTokenMiddleware("access"), checkRolesMiddleware(["USER"])],
+	[
+		verifyTokenMiddleware("access"),
+		checkRolesMiddleware(["USER"]),
+		checkIsBlockedMiddleware
+	],
 	async (req, res) => {
 		try {
 			const answer = await commentService.createArticleComment(
@@ -54,7 +59,11 @@ router.post(
 
 router.patch(
 	"/:commentId",
-	[verifyTokenMiddleware("access"), checkRolesMiddleware(["USER"])],
+	[
+		verifyTokenMiddleware("access"),
+		checkRolesMiddleware(["USER"]),
+		checkIsBlockedMiddleware
+	],
 	async (req, res) => {
 		try {
 			const answer = await commentService.updateArticleComment(
@@ -75,7 +84,7 @@ router.patch(
 
 router.delete(
 	"/:commentId",
-	[verifyTokenMiddleware("access")],
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
 			const answer = await commentService.deleteArticleComment(

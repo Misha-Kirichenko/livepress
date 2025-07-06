@@ -23,6 +23,13 @@ exports.login = async (login, password) => {
 	if (foundUser) {
 		const passwordsMatch = await bcrypt.compare(password, foundUser.password);
 		if (passwordsMatch) {
+			if (foundUser.isBlocked) {
+				const forbiddenException = createHttpException(
+					403,
+					MESSAGES.ERRORS.BLOCKED
+				);
+				throw forbiddenException;
+			}
 			const tokenPairs = generateTokenPairs({
 				id: foundUser.id,
 				name: foundUser.name,
@@ -55,6 +62,14 @@ exports.refresh = async (userData) => {
 			MESSAGES.ERRORS.UNAUTHORIZED
 		);
 		throw unauthorizedException;
+	}
+
+	if (foundUser.isBlocked) {
+		const forbiddenException = createHttpException(
+			403,
+			MESSAGES.ERRORS.BLOCKED
+		);
+		throw forbiddenException;
 	}
 
 	foundUser.lastLogin = Date.now();

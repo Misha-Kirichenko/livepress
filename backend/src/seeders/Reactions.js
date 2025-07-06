@@ -39,9 +39,9 @@ module.exports = (conn) => {
 					return { user_id, article_id, reaction };
 				});
 
-				console.log("Executing reaction seeder...");
+				console.log("Executing reactions seeder...");
 				await queryInterface.bulkInsert("reactions", reactionsData, {});
-				console.log("Reaction seeder executed successfully.");
+				console.log("reactions seeder executed successfully.");
 			}
 		},
 		down: () => {

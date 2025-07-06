@@ -3,6 +3,7 @@ module.exports = {
 		ALL_FIELDS_REQUIRED: "All fields are required",
 		INTERNAL_SERVER_ERROR: "Internal Server Error",
 		BAD_REQUEST: "Ooops...Something went wrong!",
+		BLOCKED: "Your account is blocked",
 		UNAUTHORIZED: "Invalid credentials",
 		FORBIDDEN: "You have no access rights",
 		NO_ROLE: "No role was passed",
@@ -13,5 +14,5 @@ module.exports = {
 		UNKNOWN_USER: "No matching user found",
 		UNACCEPTABLE: "value is unacceptable",
 		UNACCEPTABLE_FIELDS: "unacceptable fields"
-	},
+	}
 };

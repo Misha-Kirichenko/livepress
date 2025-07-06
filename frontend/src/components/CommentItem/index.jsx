@@ -11,6 +11,7 @@ import ActionsPanel from "./ActionsPanel";
 import ItemText from "./ItemText";
 import EditPanel from "./EditPanel";
 import ConfirmModal from "../ConfirmModal";
+import { commentAuthorPropTypes } from "../../propTypes/commentAuthorPropTypes";
 
 const modes = ["view", "edit"];
 
@@ -22,13 +23,13 @@ const CommentItem = ({ commentData, setComments }) => {
 	const [editedText, setEditedText] = useState("");
 	const userData = useContext(AuthContext);
 	const { id, text, author, createDate, updateDate } = commentData;
-	const fullName = `${author.name} ${author.surname}`;
+	const fullName = he.decode(`${author.name} ${author.surname}`);
 	const fnameInitial = author.name[0].toUpperCase();
 	const lnameInitial = author.surname[0].toUpperCase();
 
 	const initials = `${fnameInitial}.${lnameInitial}`;
 
-	const isAuthorBlocked = author.isBlocked;
+	const isAuthorBlocked = Boolean(author.isBlocked);
 	const canSeeBlockedInfo = userData.role === "ADMIN" && isAuthorBlocked;
 
 	const handleDelete = async () => {
@@ -189,13 +190,7 @@ CommentItem.propTypes = {
 		createDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 			.isRequired,
 		updateDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-		author: PropTypes.shape({
-			name: PropTypes.string.isRequired,
-			surname: PropTypes.string.isRequired,
-			nickName: PropTypes.string.isRequired,
-			isBlocked: PropTypes.bool,
-			blockReason: PropTypes.string
-		}).isRequired
+		author: commentAuthorPropTypes
 	}).isRequired,
 	setComments: PropTypes.func.isRequired
 };

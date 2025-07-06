@@ -14,8 +14,10 @@ module.exports = (conn) => {
 					{ name: "Politics" },
 					{ name: "Social" }
 				];
-				return queryInterface.bulkInsert("categories", categories, {});
+				console.log("Executing categories seeder...");
+				await queryInterface.bulkInsert("categories", categories, {});
 			}
+			console.log("categories seeder executed successfully.");
 			return;
 		},
 		down: () => {

@@ -3,7 +3,7 @@ const { getUserNotificationsGateway } = require("@sockets");
 const { notificationUtil, socketRoomUtil } = require("@utils");
 const { UserCategory } = require("@models")(conn);
 const { ARTICLE } = require("@constants/sockets/events");
-const userNotificationCacheService = require("@services/userNotificationCacheService");
+const { userNotificationCacheService } = require("@services/api/notification");
 
 const handleNewArticleNotification = async (article) => {
 	const userNotificationsGateway = getUserNotificationsGateway();

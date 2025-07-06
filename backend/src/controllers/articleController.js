@@ -1,35 +1,38 @@
 const { Router } = require("express");
 const router = Router();
 const { statusCodeMessage } = require("@utils");
-
 const {
 	verifyTokenMiddleware,
-	checkRolesMiddleware
+	checkRolesMiddleware,
+	checkIsBlockedMiddleware
 } = require("@middlewares/auth");
-const articleService = require("@services/articleService");
-const articleListService = require("@services/articleListService");
+const { articleService, articleListService } = require("@services/api/article");
 const { createMulterInstance } = require("@utils");
 const {
 	createArticleMiddleware,
 	updateArticleMiddleware
 } = require("@middlewares/article");
-const {handleValidationErrorsMiddleware} = require("@middlewares");
+const { handleValidationErrorsMiddleware } = require("@middlewares");
 
 const uploadArticleImg = createMulterInstance("articles");
 
-router.get("/my-list", [verifyTokenMiddleware("access")], async (req, res) => {
-	try {
-		const answer = await articleListService.getMyList(req.user, req.query);
-		return res.send(answer);
-	} catch (error) {
-		const { status, message } = statusCodeMessage(error);
-		return res.status(status).send({ message });
+router.get(
+	"/my-list",
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
+	async (req, res) => {
+		try {
+			const answer = await articleListService.getMyList(req.user, req.query);
+			return res.send(answer);
+		} catch (error) {
+			const { status, message } = statusCodeMessage(error);
+			return res.status(status).send({ message });
+		}
 	}
-});
+);
 
 router.get(
 	"/reactions/:id",
-	[verifyTokenMiddleware("access")],
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
 			const answer = await articleService.getArticleReactions(req.params.id);
@@ -43,7 +46,11 @@ router.get(
 
 router.put(
 	"/reaction/:id",
-	[verifyTokenMiddleware("access"), checkRolesMiddleware(["USER"])],
+	[
+		verifyTokenMiddleware("access"),
+		checkRolesMiddleware(["USER"]),
+		checkIsBlockedMiddleware
+	],
 	async (req, res) => {
 		try {
 			const answer = await articleService.setArticleReaction(
@@ -59,15 +66,19 @@ router.put(
 	}
 );
 
-router.get("/:id", [verifyTokenMiddleware("access")], async (req, res) => {
-	try {
-		const answer = await articleService.getArticle(req.params.id, req.user);
-		return res.send(answer);
-	} catch (error) {
-		const { status, message } = statusCodeMessage(error);
-		return res.status(status).send({ message });
+router.get(
+	"/:id",
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
+	async (req, res) => {
+		try {
+			const answer = await articleService.getArticle(req.params.id, req.user);
+			return res.send(answer);
+		} catch (error) {
+			const { status, message } = statusCodeMessage(error);
+			return res.status(status).send({ message });
+		}
 	}
-});
+);
 
 router.post(
 	"/",
@@ -83,7 +94,6 @@ router.post(
 			const answer = await articleService.createArticle(req);
 			return res.send(answer);
 		} catch (error) {
-			console.log("article create error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}
@@ -121,7 +131,6 @@ router.delete(
 			);
 			return res.send(answer);
 		} catch (error) {
-			console.log("article delete error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}

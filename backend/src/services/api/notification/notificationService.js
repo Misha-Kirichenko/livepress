@@ -1,5 +1,5 @@
-const userNotificationCacheService = require("@services/userNotificationCacheService");
-const adminNotificationCacheService = require("@services/adminNotificationCacheService");
+const userNotificationCacheService = require("./userNotificationCacheService");
+const adminNotificationCacheService = require("./adminNotificationCacheService");
 
 exports.getAllUserNotifications = async (user_id) => {
 	const notifications = await userNotificationCacheService.getAllUserNotifs(

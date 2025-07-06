@@ -2,33 +2,40 @@ const { Router } = require("express");
 const router = Router();
 const { statusCodeMessage } = require("@utils");
 const MESSAGES = require("@constants/messages");
-const { verifyTokenMiddleware } = require("@middlewares/auth");
-const notificationService = require("@services/notificationService");
+const {
+	verifyTokenMiddleware,
+	checkIsBlockedMiddleware
+} = require("@middlewares/auth");
+const { notificationService } = require("@services/api/notification");
 
-router.get("/", verifyTokenMiddleware("access"), async (req, res) => {
-	try {
-		let answer = [];
-		const { role, id: user_id } = req.user;
-		switch (role) {
-			case "ADMIN":
-				answer = await notificationService.getAllAdminNotifications(user_id);
-				break;
-			case "USER":
-				answer = await notificationService.getAllUserNotifications(user_id);
-				break;
-			default:
-				return res.status(403).send({ message: MESSAGES.ERRORS.FORBIDDEN });
+router.get(
+	"/",
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
+	async (req, res) => {
+		try {
+			let answer = [];
+			const { role, id: user_id } = req.user;
+			switch (role) {
+				case "ADMIN":
+					answer = await notificationService.getAllAdminNotifications(user_id);
+					break;
+				case "USER":
+					answer = await notificationService.getAllUserNotifications(user_id);
+					break;
+				default:
+					return res.status(403).send({ message: MESSAGES.ERRORS.FORBIDDEN });
+			}
+			return res.send(answer);
+		} catch (error) {
+			const { status, message } = statusCodeMessage(error);
+			return res.status(status).send({ message });
 		}
-		return res.send(answer);
-	} catch (error) {
-		const { status, message } = statusCodeMessage(error);
-		return res.status(status).send({ message });
 	}
-});
+);
 
 router.delete(
 	"/:notif_id",
-	verifyTokenMiddleware("access"),
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
 			const { notif_id } = req.params;

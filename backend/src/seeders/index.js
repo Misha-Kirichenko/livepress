@@ -22,6 +22,11 @@ const commentsSeeder = require("./Comments")(conn);
 		await reactionsSeeder.up(1000);
 		await commentsSeeder.up(1000);
 	} catch (error) {
-		console.error("seeding error:", error);
+		if (error.code === "23505") {
+			const message = `"${error.table}" seeder tried to insert non-unique value on unique field. Ignoring seeder...`;
+			console.warn(message);
+			return;
+		}
+		console.error("other seeding error:", error);
 	}
 })();

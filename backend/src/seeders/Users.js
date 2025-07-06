@@ -16,6 +16,10 @@ module.exports = (conn) => {
 					const name = faker.name.firstName().replace(/'/g, "&#39;");
 					const surname = faker.name.lastName().replace(/'/g, "&#39;");
 					const lastLogin = faker.time.recent("unix");
+					const nickName = faker.internet
+						.userName(name, surname)
+						.toLowerCase()
+						.replace(/'/g, "");
 
 					return {
 						name,
@@ -25,7 +29,7 @@ module.exports = (conn) => {
 							"password123",
 							parseInt(process.env.PASSWORD_SALT_ROUNDS)
 						),
-						nickName: faker.internet.userName(name, surname).toLowerCase(),
+						nickName,
 						role: "USER",
 						lastLogin
 					};
@@ -73,7 +77,7 @@ module.exports = (conn) => {
 					ON CONFLICT (email) DO NOTHING;
 				`);
 
-				console.log("Users seeder executed successfully.");
+				console.log("users seeder executed successfully.");
 			}
 		},
 		down: () => {

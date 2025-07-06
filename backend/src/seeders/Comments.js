@@ -47,9 +47,9 @@ module.exports = (conn) => {
 					};
 				});
 
-				console.log("Executing comment seeder...");
+				console.log("Executing comments seeder...");
 				await queryInterface.bulkInsert("comments", commentsData, {});
-				console.log("Comment seeder executed successfully.");
+				console.log("comments seeder executed successfully.");
 			}
 		},
 		down: () => {
