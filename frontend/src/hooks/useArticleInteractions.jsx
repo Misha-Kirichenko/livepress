@@ -2,9 +2,16 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import AuthService from "../api/authService";
 import { SOCKET_EVENTS } from "../constants";
+import { handleSetNewComment } from "../handlers/handleSetNewComment";
+import { handleSetCommentsAfterDelete } from "../handlers/handleSetCommentsAfterDelete";
 const { VITE_API_HOST } = import.meta.env;
 
-export const useArticleInteractions = (articleId, setReactions) => {
+export const useArticleInteractions = (
+	articleId,
+	setReactions,
+	setComments,
+	commentsLimit
+) => {
 	const socketRef = useRef(null);
 
 	useEffect(() => {
@@ -33,8 +40,32 @@ export const useArticleInteractions = (articleId, setReactions) => {
 			});
 		});
 
+		socket.on(SOCKET_EVENTS.ARTICLE.COMMENT_ADD, ({ payload }) => {
+			handleSetNewComment(setComments, payload, commentsLimit);
+		});
+
+		socket.on(SOCKET_EVENTS.ARTICLE.COMMENT_UPDATE, ({ payload }) => {
+			setComments((prevComments) => {
+				const updatedComments = [...prevComments.data];
+				const commentIndex = updatedComments.findIndex(
+					(comment) => comment.id === payload.id
+				);
+				if (commentIndex !== -1)
+					updatedComments.splice(commentIndex, 1, payload);
+
+				return {
+					data: updatedComments,
+					total: prevComments.total
+				};
+			});
+		});
+
+		socket.on(SOCKET_EVENTS.ARTICLE.COMMENT_DELETE, ({ payload }) => {
+			handleSetCommentsAfterDelete(setComments, payload.id);
+		});
+
 		return () => {
 			socket.disconnect();
 		};
-	}, [articleId, setReactions]);
+	}, [articleId, setReactions, setComments, commentsLimit]);
 };

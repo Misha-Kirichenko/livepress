@@ -1,9 +1,20 @@
-const handleNewArticleNotification = require("./handleNewArticleNotification");
-const handleNotifyAdminAboutReaction = require("./handleNotifyAdminAboutReaction");
-const handleSendReactions = require("./handleSendReactions");
+const {
+	handleNewArticleNotification,
+	handleNotifyAdminAboutReaction
+} = require("./notifiers");
+
+const {
+	handleSendNewComment,
+	handleSendReactions,
+	handleSendDeleteComment,
+	handleSendUpdateComment
+} = require("./updaters");
 
 module.exports = {
 	handleNewArticleNotification,
 	handleNotifyAdminAboutReaction,
-	handleSendReactions
+	handleSendReactions,
+	handleSendNewComment,
+	handleSendDeleteComment,
+	handleSendUpdateComment
 };

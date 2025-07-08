@@ -32,11 +32,10 @@ const UserReactions = ({ reactions, handleReaction }) => {
 	);
 };
 
+const allReactions = { ...reactionsPropTypes, myReaction: PropTypes.string };
+
 UserReactions.propTypes = {
-	reactions: PropTypes.shape({
-		...reactionsPropTypes,
-		myReaction: PropTypes.string
-	}).isRequired,
+	reactions: PropTypes.shape(allReactions).isRequired,
 	handleReaction: PropTypes.func.isRequired
 };
 

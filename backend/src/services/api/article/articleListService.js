@@ -1,5 +1,6 @@
 const conn = require("@config/conn");
-const { Article, Category, User } = require("@models")(conn);
+const { Article, Category, User, Reaction } = require("@models")(conn);
+const { createHttpException } = require("@utils");
 const { Op } = require("sequelize");
 
 exports.getMyList = async (userData, query) => {
@@ -122,4 +123,74 @@ exports.getMyList = async (userData, query) => {
 	};
 
 	return articles;
+};
+
+exports.getArticle = async (id, userData) => {
+	let userReaction = null;
+	let subscriptions = null;
+
+	const { role, id: user_id } = userData;
+
+	const foundArticle = await Article.findOne({
+		where: { id },
+		attributes: { exclude: ["category_id", "author_id"] },
+		include: [
+			{
+				model: Category,
+				as: "category",
+				attributes: ["id", "name"]
+			},
+			{
+				model: User,
+				as: "author",
+				attributes: ["id", "name", "surname"]
+			}
+		]
+	});
+
+	if (!foundArticle) {
+		const notFoundException = createHttpException(
+			404,
+			MESSAGE_UTIL.ERRORS.NOT_FOUND("article")
+		);
+		throw notFoundException;
+	}
+
+	if (role === "USER") {
+		const foundReaction = await Reaction.findOne({
+			where: {
+				article_id: id,
+				user_id
+			},
+			attributes: ["reaction"]
+		});
+
+		if (foundReaction) {
+			userReaction = foundReaction.reaction;
+		}
+		const userCategories = await User.findByPk(userData.id, {
+			include: {
+				model: Category,
+				as: "subscriptions",
+				attributes: ["id"],
+				through: { attributes: [] }
+			}
+		});
+
+		subscriptions = userCategories.subscriptions.map((category) => category.id);
+	}
+
+	return {
+		...foundArticle.toJSON(),
+		author: {
+			author_id: foundArticle.author.id,
+			fullName: `${foundArticle.author.name} ${foundArticle.author.surname}`
+		},
+		...(role === "USER" &&
+			subscriptions && {
+				reaction: userReaction,
+				subOnCategory: subscriptions.includes(foundArticle.category.id)
+			}),
+		category: foundArticle.category.name
+	};
 };

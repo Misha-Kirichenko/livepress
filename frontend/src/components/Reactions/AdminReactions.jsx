@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { Stack, Typography } from "@mui/material";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { reactionsPropTypes } from "../../propTypes/reactionsPropTypes";
 
 const AdminReactions = ({ reactions }) => {
     
@@ -25,12 +26,9 @@ const AdminReactions = ({ reactions }) => {
 	);
 };
 
+
 AdminReactions.propTypes = {
-	reactions: PropTypes.shape({
-		likes: PropTypes.number.isRequired,
-		dislikes: PropTypes.number.isRequired,
-		myReaction: PropTypes.string
-	}).isRequired
+	reactions: PropTypes.shape(reactionsPropTypes).isRequired
 };
 
 export default AdminReactions;

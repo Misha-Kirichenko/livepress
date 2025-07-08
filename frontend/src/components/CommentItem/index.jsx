@@ -12,6 +12,7 @@ import ItemText from "./ItemText";
 import EditPanel from "./EditPanel";
 import ConfirmModal from "../ConfirmModal";
 import { commentAuthorPropTypes } from "../../propTypes/commentAuthorPropTypes";
+import { handleSetCommentsAfterDelete } from "../../handlers/handleSetCommentsAfterDelete";
 
 const modes = ["view", "edit"];
 
@@ -35,10 +36,7 @@ const CommentItem = ({ commentData, setComments }) => {
 	const handleDelete = async () => {
 		try {
 			const response = await CommentService.deleteArticleComment(id);
-			setComments((prevComments) => ({
-				data: prevComments.data.filter((comment) => comment.id !== id),
-				total: prevComments.total - 1
-			}));
+			handleSetCommentsAfterDelete(setComments, id);
 			showSnackbar({
 				open: true,
 				message: response.data.message,

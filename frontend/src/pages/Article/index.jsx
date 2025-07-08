@@ -50,7 +50,7 @@ const Article = () => {
 		setReactions
 	} = useReactions(id);
 
-	useArticleInteractions(id, setReactions);
+	useArticleInteractions(id, setReactions, setComments, commentsLimit);
 
 	const formattedDate = useMemo(() => {
 		if (!article?.createDate) return "";
@@ -181,7 +181,11 @@ const Article = () => {
 					{comments.data.length ? "Comments" : "No comments yet"}
 				</Typography>
 				{userData.role === "USER" && (
-					<CommentInput setComments={setComments} articleId={id} />
+					<CommentInput
+						setComments={setComments}
+						articleId={id}
+						limit={commentsLimit}
+					/>
 				)}
 				<Box mt={2}>
 					{comments.data.map((comment, index) => (

@@ -6,7 +6,11 @@ const {
 	checkRolesMiddleware,
 	checkIsBlockedMiddleware
 } = require("@middlewares/auth");
-const { articleService, articleListService } = require("@services/api/article");
+const {
+	articleService,
+	articleListService,
+	articleInteractionService
+} = require("@services/api/article");
 const { createMulterInstance } = require("@utils");
 const {
 	createArticleMiddleware,
@@ -35,7 +39,9 @@ router.get(
 	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
-			const answer = await articleService.getArticleReactions(req.params.id);
+			const answer = await articleInteractionService.getArticleReactions(
+				req.params.id
+			);
 			return res.send(answer);
 		} catch (error) {
 			const { status, message } = statusCodeMessage(error);
@@ -53,13 +59,14 @@ router.put(
 	],
 	async (req, res) => {
 		try {
-			const answer = await articleService.setArticleReaction(
+			const answer = await articleInteractionService.setArticleReaction(
 				req.user,
 				req.params.id,
 				req.body.reaction
 			);
 			return res.send(answer);
 		} catch (error) {
+			console.log("set reaction error", error);
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
 		}
@@ -71,7 +78,10 @@ router.get(
 	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
-			const answer = await articleService.getArticle(req.params.id, req.user);
+			const answer = await articleListService.getArticle(
+				req.params.id,
+				req.user
+			);
 			return res.send(answer);
 		} catch (error) {
 			const { status, message } = statusCodeMessage(error);

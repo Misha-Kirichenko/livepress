@@ -7,8 +7,9 @@ import CommentService from "../../api/commentService";
 import AuthService from "../../api/authService";
 import { useNavigate } from "react-router";
 import { useSnackbar } from "../../contexts/SnackbarProvider";
+import { handleSetNewComment } from "../../handlers/handleSetNewComment";
 
-const CommentInput = ({ setComments, articleId }) => {
+const CommentInput = ({ setComments, articleId, limit }) => {
 	const { showSnackbar } = useSnackbar();
 	const navigate = useNavigate();
 	const { name, surname } = useContext(AuthContext);
@@ -21,10 +22,7 @@ const CommentInput = ({ setComments, articleId }) => {
 					articleId,
 					{ text: comment }
 				);
-				setComments((prev) => ({
-					data: [createdComment.data, ...prev.data],
-					total: prev.total + 1
-				}));
+				handleSetNewComment(setComments, createdComment.data, limit);
 			} catch (error) {
 				if (error.response?.status === 401) {
 					AuthService.clearTokens();

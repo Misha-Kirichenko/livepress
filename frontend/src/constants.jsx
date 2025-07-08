@@ -5,6 +5,9 @@ export const SOCKET_EVENTS = {
 	ARTICLE: {
 		VISIT: "article:visit",
 		NEW: "article:new",
-        REACTION: "article:reaction",
+		REACTION: "article:reaction",
+		COMMENT_ADD: "article:comment:add",
+		COMMENT_UPDATE: "article:comment:update",
+		COMMENT_DELETE: "article:comment:delete"
 	}
 };

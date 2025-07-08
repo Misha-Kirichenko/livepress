@@ -6,14 +6,14 @@ const {
 	checkRolesMiddleware,
 	checkIsBlockedMiddleware
 } = require("@middlewares/auth");
-const { commentService } = require("@services/api/comment");
+const { commentService, commentListService } = require("@services/api/comment");
 
 router.get(
 	"/:articleId",
 	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {
 		try {
-			const answer = await commentService.getArticleComments(
+			const answer = await commentListService.getArticleComments(
 				req.user.role,
 				req.params.articleId,
 				req.query
@@ -43,6 +43,7 @@ router.post(
 			);
 			return res.send(answer);
 		} catch (error) {
+			console.log("new comment error", error);
 			if (error.name === "SequelizeValidationError") {
 				return res.status(422).send({ message: "Comment can't be empty" });
 			}
