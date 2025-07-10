@@ -113,6 +113,16 @@ export const useNotifications = (role, setNotifications) => {
 					);
 				});
 			});
+			socket.on(SOCKET_EVENTS.ARTICLE.NEW_COMMENT, (data) => {
+				setNotifications((prev) => [
+					{
+						...data,
+						createDate: data.createDate,
+						formattedCreateDate: modifyNotificationDateTime(data.createDate)
+					},
+					...prev
+				]);
+			});
 		}
 
 		socket.on("connect_error", (err) => {

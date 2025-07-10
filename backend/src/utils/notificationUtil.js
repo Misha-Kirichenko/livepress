@@ -31,6 +31,21 @@ const notificationUtil = {
 		};
 
 		return userReactionMessage;
+	},
+	NEW_COMMENT: (userData, commentData) => {
+		const { id: user_id, name, surname } = userData;
+		const userFullName = `${name} ${surname}`;
+		const { createDate, article_id, article_title } = commentData;
+
+		const userCommentMessage = {
+			message: `${userFullName} commented on article: "${article_title}"`,
+			article_id,
+			type: ARTICLE.NEW_COMMENT,
+			user_id,
+			createDate
+		};
+
+		return userCommentMessage;
 	}
 };
 

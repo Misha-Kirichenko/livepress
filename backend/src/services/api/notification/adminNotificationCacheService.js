@@ -1,7 +1,23 @@
 const redis = require("@config/redisClient");
 const crypto = require("crypto");
 const { createRedisKey } = require("@utils");
+const { ARTICLE } = require("@constants/sockets/events");
 
+/*
+example structure
+{
+	"admin:notifs:1": 
+	{
+		"eca5ba52": {
+			message: "string", 
+			type: "article:comment:add", 
+			user_id: 1,
+			createDate: 1752137895924
+		}
+	}
+}
+
+*/
 exports.addNotif = async (admin_id, notification) => {
 	const adminNotifsKey = createRedisKey(`admin:notifs`, admin_id);
 	const allNotifsRaw = await redis.hgetall(adminNotifsKey);
@@ -12,7 +28,13 @@ exports.addNotif = async (admin_id, notification) => {
 		const foundNotif =
 			parsedNotif.user_id === user_id &&
 			parsedNotif.article_id === article_id &&
-			parsedNotif.type === type;
+			parsedNotif.type === type &&
+			type !== ARTICLE.NEW_COMMENT;
+		/*
+				Check if type is not "article:comment:new", 
+				because one user can comment one article multiple times unlike reacting on article.
+				In that case notification doesn't need to be updated, it needs to be added as new
+			*/
 
 		if (foundNotif) {
 			if (!message) {

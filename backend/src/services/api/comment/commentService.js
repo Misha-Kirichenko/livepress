@@ -1,13 +1,26 @@
 const conn = require("@config/conn");
-const { Comment } = require("@models")(conn);
+const { Comment, Article } = require("@models")(conn);
 const { MESSAGE_UTIL, createHttpException } = require("@utils");
 const {
 	handleSendNewComment,
 	handleSendUpdateComment,
-	handleSendDeleteComment
+	handleSendDeleteComment,
+	handleNotifyAdminAboutComment
 } = require("@sockets/handlers");
 
 exports.createArticleComment = async (user, article_id, text) => {
+	const foundArticle = await Article.findByPk(article_id, {
+		attributes: ["id", "author_id", "title"]
+	});
+
+	if (!foundArticle) {
+		const notFoundException = createHttpException(
+			404,
+			MESSAGE_UTIL.ERRORS.NOT_FOUND("Article")
+		);
+		throw notFoundException;
+	}
+
 	const createdComment = await Comment.create({
 		user_id: user.id,
 		article_id,
@@ -26,7 +39,25 @@ exports.createArticleComment = async (user, article_id, text) => {
 		}
 	};
 
-	await handleSendNewComment(article_id, commentData);
+	const commentDataForNotif = {
+		createDate: Number(createdComment.createDate),
+		article_id: foundArticle.id,
+		article_title: foundArticle.title,
+		article_author_id: foundArticle.author_id
+	};
+
+	const userDataForNotif = {
+		id: user.id,
+		name: user.name,
+		surname: user.surname
+	};
+
+	const newCommentEvents = [
+		handleSendNewComment(article_id, commentData),
+		handleNotifyAdminAboutComment(userDataForNotif, commentDataForNotif)
+	];
+
+	await Promise.all(newCommentEvents);
 
 	return commentData;
 };

@@ -43,14 +43,8 @@ router.post(
 			);
 			return res.send(answer);
 		} catch (error) {
-			console.log("new comment error", error);
 			if (error.name === "SequelizeValidationError") {
 				return res.status(422).send({ message: "Comment can't be empty" });
-			}
-			if (error.name === "SequelizeForeignKeyConstraintError") {
-				return res
-					.status(404)
-					.send({ message: MESSAGE_UTIL.ERRORS.NOT_FOUND("Article") });
 			}
 			const { status, message } = statusCodeMessage(error);
 			return res.status(status).send({ message });
