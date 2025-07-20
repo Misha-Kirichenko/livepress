@@ -31,8 +31,8 @@ const handleNotifyAdminAboutReaction = async (
 	adminNotificationsGateway
 		.to(socketRoomUtil.getAdminNotificationRoom(article.author_id))
 		.emit(ARTICLE.REACTION, {
-			...notificationObj,
-			notif_id
+			notif_id,
+			...notificationObj
 		});
 };
 

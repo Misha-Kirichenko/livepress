@@ -43,6 +43,7 @@ router.post(
 			);
 			return res.send(answer);
 		} catch (error) {
+			console.log("comment error", error);
 			if (error.name === "SequelizeValidationError") {
 				return res.status(422).send({ message: "Comment can't be empty" });
 			}

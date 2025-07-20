@@ -71,3 +71,19 @@ exports.removeNotif = async (admin_id, notif_id) => {
 	const adminNotifsKey = createRedisKey(`admin:notifs`, admin_id);
 	await redis.hdel(adminNotifsKey, notif_id);
 };
+
+exports.removeNotifsByArticle = async (admin_id, article_id) => {
+	const adminNotifsKey = createRedisKey(`admin:notifs`, admin_id);
+	const allNotifsRaw = await redis.hgetall(adminNotifsKey);
+	const articleNotifs = [];
+	for (const notif_id in allNotifsRaw) {
+		const parsedNotif = JSON.parse(allNotifsRaw[notif_id]);
+		if (parsedNotif.article_id === article_id) {
+			articleNotifs.push(notif_id);
+		}
+	}
+
+	if (articleNotifs.length) {
+		await redis.hdel(adminNotifsKey, articleNotifs);
+	}
+};

@@ -60,13 +60,14 @@ const useArticleComments = (articleId, limit = 5) => {
 	const hasMore =
 		Boolean(comments.total) && comments.data.length < comments.total;
 
-
 	return {
 		comments,
 		isLoading,
 		isLoadingMore,
 		loadMore,
 		setComments,
+		page,
+		limit,
 		hasMore
 	};
 };

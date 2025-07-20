@@ -34,6 +34,37 @@ router.get(
 );
 
 router.delete(
+	"/by-article/:article_id",
+	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
+	async (req, res) => {
+		try {
+			const { article_id } = req.params;
+			const { role, id: user_id } = req.user;
+			switch (role) {
+				case "ADMIN":
+					await notificationService.removeAdminNotificationByArticle(
+						user_id,
+						article_id
+					);
+					break;
+				case "USER":
+					await notificationService.removeUserNotificationByArticle(
+						user_id,
+						article_id
+					);
+					break;
+				default:
+					return res.status(403).send({ message: MESSAGES.ERRORS.FORBIDDEN });
+			}
+			return res.status(204).send();
+		} catch (error) {
+			const { status, message } = statusCodeMessage(error);
+			return res.status(status).send({ message });
+		}
+	}
+);
+
+router.delete(
 	"/:notif_id",
 	[verifyTokenMiddleware("access"), checkIsBlockedMiddleware],
 	async (req, res) => {

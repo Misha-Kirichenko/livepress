@@ -16,8 +16,8 @@ const handleNotifyAdminAboutComment = async (userData, commentData) => {
 	adminNotificationsGateway
 		.to(socketRoomUtil.getAdminNotificationRoom(commentData.article_author_id))
 		.emit(ARTICLE.NEW_COMMENT, {
-			...notificationObj,
-			notif_id
+			notif_id,
+			...notificationObj
 		});
 };
 

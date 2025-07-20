@@ -24,6 +24,7 @@ import Loader from "../../components/Loader";
 import { useArticleInteractions } from "../../hooks/useArticleInteractions";
 import Header from "../../components/Header";
 import GoHome from "../../components/GoHome";
+import TextButton from "../../components/TextButton";
 import useArticleComments from "../../hooks/useArticleComments";
 
 const Article = () => {
@@ -40,7 +41,9 @@ const Article = () => {
 		isLoadingMore,
 		loadMore,
 		setComments,
-		hasMore
+		hasMore,
+		page,
+		limit
 	} = useArticleComments(id, commentsLimit);
 
 	const {
@@ -50,7 +53,12 @@ const Article = () => {
 		setReactions
 	} = useReactions(id);
 
-	useArticleInteractions(id, setReactions, setComments, commentsLimit);
+	useArticleInteractions(
+		id,
+		setReactions,
+		{ page, limit, setComments },
+		commentsLimit
+	);
 
 	const formattedDate = useMemo(() => {
 		if (!article?.createDate) return "";
@@ -192,34 +200,29 @@ const Article = () => {
 						<CommentItem
 							key={`comment-${index}-${comment.id}`}
 							commentData={comment}
+							page={page}
+							limit={limit}
+							article_id={id}
 							setComments={setComments}
 						/>
 					))}
 
 					{hasMore && (
 						<Box display="flex" justifyContent="center" mt={2}>
-							<button
-								onClick={loadMore}
-								disabled={isLoadingMore}
-								style={{
-									padding: "8px 16px",
-									border: "1px solid gray",
-									background: "white",
-									cursor: "pointer",
-									borderRadius: "4px"
-								}}
-							>
-								{isLoadingMore ? (
-									<Loader
-										type="inline"
-										height="25px"
-										width="25px"
-										align="flex-start"
-									/>
-								) : (
-									"Load More"
-								)}
-							</button>
+							{isLoadingMore ? (
+								<Loader
+									type="inline"
+									height="25px"
+									width="25px"
+									align="flex-start"
+								/>
+							) : (
+								<TextButton
+									text="load more"
+									action={loadMore}
+									disabled={isLoadingMore}
+								/>
+							)}
 						</Box>
 					)}
 				</Box>

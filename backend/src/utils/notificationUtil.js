@@ -1,16 +1,12 @@
-const crypto = require("crypto");
 const { ARTICLE } = require("@constants/sockets/events");
 
 const notificationUtil = {
 	ARTICLE_NEW: (article) => {
 		const { title, id, category_name, createDate } = article;
-		const randomString = crypto.randomBytes(4).toString("hex");
-
 		const newArticleMessage = {
 			message: `New article in "${category_name}": "${title}"`,
 			article_id: id,
 			type: ARTICLE.NEW,
-			notif_id: randomString,
 			createDate: Number(createDate)
 		};
 

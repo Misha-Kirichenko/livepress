@@ -1,7 +1,8 @@
 const {
 	handleNewArticleNotification,
 	handleNotifyAdminAboutReaction,
-	handleNotifyAdminAboutComment
+	handleNotifyAdminAboutComment,
+	handleNotifyUsersAboutComment
 } = require("./notifiers");
 
 const {
@@ -18,5 +19,6 @@ module.exports = {
 	handleSendReactions,
 	handleSendNewComment,
 	handleSendDeleteComment,
-	handleSendUpdateComment
+	handleSendUpdateComment,
+	handleNotifyUsersAboutComment
 };

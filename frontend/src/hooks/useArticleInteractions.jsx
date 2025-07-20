@@ -3,13 +3,13 @@ import { io } from "socket.io-client";
 import AuthService from "../api/authService";
 import { SOCKET_EVENTS } from "../constants";
 import { handleSetNewComment } from "../handlers/handleSetNewComment";
-import { handleSetCommentsAfterDelete } from "../handlers/handleSetCommentsAfterDelete";
+import { refetchCommentsAfterDelete } from "../handlers/refetchCommentsAfterDelete";
 const { VITE_API_HOST } = import.meta.env;
 
 export const useArticleInteractions = (
 	articleId,
 	setReactions,
-	setComments,
+	{ setComments, page, limit },
 	commentsLimit
 ) => {
 	const socketRef = useRef(null);
@@ -60,12 +60,13 @@ export const useArticleInteractions = (
 			});
 		});
 
-		socket.on(SOCKET_EVENTS.ARTICLE.COMMENT_DELETE, ({ payload }) => {
-			handleSetCommentsAfterDelete(setComments, payload.id);
+		socket.on(SOCKET_EVENTS.ARTICLE.COMMENT_DELETE, async () => {
+			console.log("refetched comments");
+			await refetchCommentsAfterDelete(setComments, page, limit, articleId);
 		});
 
 		return () => {
 			socket.disconnect();
 		};
-	}, [articleId, setReactions, setComments, commentsLimit]);
+	}, [articleId, setReactions, setComments, commentsLimit, page, limit]);
 };

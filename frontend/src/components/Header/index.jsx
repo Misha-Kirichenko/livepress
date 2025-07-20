@@ -18,9 +18,20 @@ const Header = () => {
 	const handleToggle = () => setOpen((prev) => !prev);
 	const handleClose = () => setOpen(false);
 
-	const handleNavigate = async (notif_id, article_id) => {
-		await handleMarkAsRead(notif_id);
-		navigate(`/article/${article_id}`);
+	const handleNavigate = async (article_id) => {
+		try {
+			const response = await NotificationService.markAsReadAllByArticle(
+				article_id
+			);
+			if (response.status === 204) {
+				setNotifications((prev) =>
+					prev.filter((article) => article.article_id !== article_id)
+				);
+			}
+			navigate(`/article/${article_id}`);
+		} catch (error) {
+			console.error("Error marking notifications read:", error);
+		}
 	};
 
 	const handleMarkAsRead = async (notif_id) => {
@@ -111,9 +122,7 @@ const Header = () => {
 										>
 											<Box
 												sx={{ flex: 1, cursor: "pointer" }}
-												onClick={() =>
-													handleNavigate(notif.notif_id, notif.article_id)
-												}
+												onClick={() => handleNavigate(notif.article_id)}
 											>
 												<Typography
 													variant="subtitle2"

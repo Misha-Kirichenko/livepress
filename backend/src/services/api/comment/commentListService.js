@@ -33,7 +33,7 @@ exports.getArticleComments = async (userRole, article_id, query) => {
 			],
 			...(userRole === "USER"
 				? { where: { [Op.or]: [{ isBlocked: false }, { isBlocked: null }] } }
-				: {})
+				: {}),
 		}
 	];
 
@@ -53,7 +53,7 @@ exports.getArticleComments = async (userRole, article_id, query) => {
 			{
 				model: User,
 				as: "author",
-				where: { isBlocked: false }
+				where: { [Op.or]: [{ isBlocked: false }, { isBlocked: null }] }
 			}
 		];
 	}

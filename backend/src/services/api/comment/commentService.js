@@ -5,12 +5,13 @@ const {
 	handleSendNewComment,
 	handleSendUpdateComment,
 	handleSendDeleteComment,
-	handleNotifyAdminAboutComment
+	handleNotifyAdminAboutComment,
+	handleNotifyUsersAboutComment
 } = require("@sockets/handlers");
 
 exports.createArticleComment = async (user, article_id, text) => {
 	const foundArticle = await Article.findByPk(article_id, {
-		attributes: ["id", "author_id", "title"]
+		attributes: ["id", "author_id", "title", "category_id"]
 	});
 
 	if (!foundArticle) {
@@ -43,18 +44,21 @@ exports.createArticleComment = async (user, article_id, text) => {
 		createDate: Number(createdComment.createDate),
 		article_id: foundArticle.id,
 		article_title: foundArticle.title,
-		article_author_id: foundArticle.author_id
+		article_author_id: foundArticle.author_id,
+		article_category_id: foundArticle.category_id
 	};
 
 	const userDataForNotif = {
 		id: user.id,
 		name: user.name,
-		surname: user.surname
+		surname: user.surname,
+		nickName: user.nickName
 	};
 
 	const newCommentEvents = [
 		handleSendNewComment(article_id, commentData),
-		handleNotifyAdminAboutComment(userDataForNotif, commentDataForNotif)
+		handleNotifyAdminAboutComment(userDataForNotif, commentDataForNotif),
+		handleNotifyUsersAboutComment(userDataForNotif, commentDataForNotif)
 	];
 
 	await Promise.all(newCommentEvents);

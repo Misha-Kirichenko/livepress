@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-
 import { Avatar, Box, TextField, Button, Stack } from "@mui/material";
 import { useState, useContext } from "react";
 import AuthContext from "../../contexts/AuthContext";

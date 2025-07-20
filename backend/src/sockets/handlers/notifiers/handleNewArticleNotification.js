@@ -18,12 +18,15 @@ const handleNewArticleNotification = async (article) => {
 
 	const notificationObj = notificationUtil.ARTICLE_NEW(article);
 
-	userNotificationCacheService.addNotif(notificationObj, userIds);
+	const notif_id = userNotificationCacheService.addNotif(
+		notificationObj,
+		userIds
+	);
 
 	for (const id of userIds) {
 		userNotificationsGateway
 			.to(socketRoomUtil.getUserNotificationRoom(id))
-			.emit(ARTICLE.NEW, notificationObj);
+			.emit(ARTICLE.NEW, { notif_id, ...notificationObj });
 	}
 };
 

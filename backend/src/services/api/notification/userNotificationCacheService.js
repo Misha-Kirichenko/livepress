@@ -1,10 +1,17 @@
+const crypto = require("crypto");
 const redis = require("@config/redisClient");
 const { createRedisKey } = require("@utils");
+/* 
+example structure for new article notif
 
+user:notif:<notif_id>: {type, message, article_id, createDate, pendingViewers: userIds[]}
+user:notifs:<user_id>: [user:notif:369d4f11, user:notif:369d4f11, user:notif:369d4f11]
+
+*/
 exports.addNotif = async (notif, user_ids) => {
 	const notification = { ...notif };
-	const userNotifKey = createRedisKey("user:notif", notification.notif_id);
-	delete notification.notif_id;
+	const notif_id = crypto.randomBytes(4).toString("hex");
+	const userNotifKey = createRedisKey("user:notif", notif_id);
 
 	await redis.set(
 		userNotifKey,
@@ -15,7 +22,8 @@ exports.addNotif = async (notif, user_ids) => {
 		const userNotifRedisKey = createRedisKey(`user:notifs`, id);
 		await redis.lpush(userNotifRedisKey, userNotifKey);
 	}
-	//push notification redis key to array of user notifications
+
+	return notif_id;
 };
 
 exports.getAllUserNotifs = async (user_id) => {
@@ -54,9 +62,9 @@ exports.removeNotif = async (user_id, notif_id) => {
 
 	const notifKey = createRedisKey("user:notif", notif_id);
 
-	const articleNotifIndex = notificationKeysArr.indexOf(notifKey);
+	const foundNotifIndex = notificationKeysArr.indexOf(notifKey);
 
-	if (articleNotifIndex !== -1) {
+	if (foundNotifIndex !== -1) {
 		const notification = await redis.get(notifKey);
 		if (notification) {
 			const parsedNotification = JSON.parse(notification);
@@ -74,4 +82,31 @@ exports.removeNotif = async (user_id, notif_id) => {
 		}
 		await redis.lrem(userRedisKey, 0, notifKey);
 	}
+};
+
+exports.removeNotifsByArticle = async (user_id, article_id) => {
+	const userRedisKey = createRedisKey(`user:notifs`, user_id);
+	const notificationKeysArr = await redis.lrange(userRedisKey, 0, -1);
+	const rawNotifs = await redis.mget(notificationKeysArr);
+	const promises = [];
+	for (let i = 0; i < rawNotifs.length; i++) {
+		const notif_key = notificationKeysArr[i];
+		const parsedNotification = JSON.parse(rawNotifs[i]);
+		if (parsedNotification.article_id === article_id) {
+			const userIndex = parsedNotification.pendingViewers.indexOf(user_id);
+			if (userIndex !== -1) {
+				if (parsedNotification.pendingViewers.length === 1) {
+					promises.push(redis.del(notif_key));
+				} else {
+					parsedNotification.pendingViewers.splice(userIndex, 1);
+					promises.push(
+						redis.set(notif_key, JSON.stringify(parsedNotification))
+					);
+				}
+			}
+			promises.push(redis.lrem(userRedisKey, 0, notif_key));
+		}
+	}
+
+	await Promise.all(promises);
 };

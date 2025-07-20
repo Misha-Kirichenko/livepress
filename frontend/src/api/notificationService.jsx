@@ -22,6 +22,18 @@ class NotificationService {
 		);
 		return response;
 	}
+
+	static async markAsReadAllByArticle(article_id) {
+		const token = AuthService.getToken("access");
+		if (!token) throw new Error("No access token available");
+		const response = await api.delete(
+			`${NotificationService.apibase}/by-article/${article_id}`,
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
+		return response;
+	}
 }
 
 export default NotificationService;

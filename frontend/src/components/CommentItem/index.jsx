@@ -12,11 +12,11 @@ import ItemText from "./ItemText";
 import EditPanel from "./EditPanel";
 import ConfirmModal from "../ConfirmModal";
 import { commentAuthorPropTypes } from "../../propTypes/commentAuthorPropTypes";
-import { handleSetCommentsAfterDelete } from "../../handlers/handleSetCommentsAfterDelete";
+import { refetchCommentsAfterDelete } from "../../handlers/refetchCommentsAfterDelete";
 
 const modes = ["view", "edit"];
 
-const CommentItem = ({ commentData, setComments }) => {
+const CommentItem = ({ commentData, page, limit, article_id, setComments }) => {
 	const navigate = useNavigate();
 	const { showSnackbar } = useSnackbar();
 	const [confirmModalIsOpen, setConfirmModalIsOpen] = useState(false);
@@ -36,7 +36,7 @@ const CommentItem = ({ commentData, setComments }) => {
 	const handleDelete = async () => {
 		try {
 			const response = await CommentService.deleteArticleComment(id);
-			handleSetCommentsAfterDelete(setComments, id);
+			await refetchCommentsAfterDelete(setComments, page, limit, article_id);
 			showSnackbar({
 				open: true,
 				message: response.data.message,
@@ -190,6 +190,9 @@ CommentItem.propTypes = {
 		updateDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 		author: commentAuthorPropTypes
 	}).isRequired,
+	page: PropTypes.number.isRequired,
+	limit: PropTypes.number.isRequired,
+	article_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 	setComments: PropTypes.func.isRequired
 };
 
