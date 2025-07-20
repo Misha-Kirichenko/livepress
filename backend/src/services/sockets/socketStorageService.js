@@ -37,3 +37,8 @@ exports.removeUserSocket = (namespace, nickName, socketId) => {
 	if (userSet && userSet.size === 1) namespaceMap.delete(nickName);
 	else userSet?.delete(socketId);
 };
+
+exports.removeUser = (namespace, nickName) => {
+	const namespaceMap = storage.get(namespace);
+	namespaceMap.delete(nickName);
+};

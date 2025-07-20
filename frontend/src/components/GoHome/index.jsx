@@ -1,5 +1,6 @@
 import { Button } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import { useNavigate } from "react-router";
 
 const GoHome = () => {
@@ -12,7 +13,8 @@ const GoHome = () => {
 	return (
 		<Button variant="contained" onClick={handleGoHome}>
 			<HomeIcon />
-			&nbsp;Go to homepage
+			&nbsp;
+			<KeyboardReturnIcon />
 		</Button>
 	);
 };

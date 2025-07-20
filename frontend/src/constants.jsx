@@ -10,5 +10,8 @@ export const SOCKET_EVENTS = {
 		NEW_COMMENT: "article:comment:new",
 		COMMENT_UPDATE: "article:comment:update",
 		COMMENT_DELETE: "article:comment:delete"
+	},
+	USER: {
+		BLOCKED: "user:blocked"
 	}
 };

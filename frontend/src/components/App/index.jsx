@@ -8,6 +8,7 @@ import EditArticle from "../../pages/EditArticle";
 import Header from "../Header";
 import CreateArticle from "../../pages/CreateArticle";
 import { SnackbarProvider } from "../../contexts/SnackbarProvider";
+import BlockedPage from "../BlockedPage";
 
 const App = () => {
 	return (
@@ -52,7 +53,7 @@ const App = () => {
 							</WithAuth>
 						}
 					/>
-
+					<Route path="/blocked" element={<BlockedPage/>} />
 					<Route path="*" element={<ErrorPage status={404} />} />
 				</Routes>
 			</Router>

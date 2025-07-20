@@ -3,7 +3,6 @@ import AuthContext from "../../contexts/AuthContext";
 import ErrorPage from "../../components/ErrorPage";
 import useCategories from "../../hooks/useCategories";
 import { DEFAULT_IMG_URL } from "../../constants";
-import "react-quill/dist/quill.snow.css";
 import ArticleForm from "../../components/ArticleForm";
 import AuthService from "../../api/authService";
 import { useNavigate } from "react-router";

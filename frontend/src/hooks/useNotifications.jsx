@@ -77,6 +77,10 @@ export const useNotifications = (role, setNotifications) => {
 					);
 				});
 			});
+			socket.on(SOCKET_EVENTS.USER.BLOCKED, () => {
+				AuthService.clearTokens();
+				navigate("/blocked");
+			});
 		} else if (role === "ADMIN") {
 			socket.on(SOCKET_EVENTS.ARTICLE.REACTION, (data) => {
 				setNotifications((prev) => {

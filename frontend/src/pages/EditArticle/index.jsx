@@ -6,7 +6,6 @@ import useArticle from "../../hooks/useArticle";
 import Loader from "../../components/Loader";
 import useCategories from "../../hooks/useCategories";
 import { API_HOST, DEFAULT_IMG_URL } from "../../constants";
-import "react-quill/dist/quill.snow.css";
 import ArticleForm from "../../components/ArticleForm";
 import ArticleService from "../../api/articleService";
 import AuthService from "../../api/authService";

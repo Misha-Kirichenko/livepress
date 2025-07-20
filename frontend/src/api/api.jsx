@@ -25,7 +25,7 @@ api.interceptors.response.use(
 				const { accessToken } = await AuthService.getNewTokens();
 				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 				return api(originalRequest);
-			} catch (_) {
+			} catch (err) {
 				AuthService.clearTokens();
 				return Promise.reject(error);
 			}

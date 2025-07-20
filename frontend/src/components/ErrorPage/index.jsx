@@ -3,7 +3,6 @@ import { Box, Typography } from "@mui/material";
 import GoHome from "../GoHome";
 
 const ErrorPage = ({ status, text }) => {
-
 	const statusText =
 		status === 404
 			? !text
@@ -11,7 +10,7 @@ const ErrorPage = ({ status, text }) => {
 				: `${text} was not found`
 			: status === 403 && !text
 			? "You have no access rights"
-			: { text };
+			: text;
 
 	return (
 		<Box
