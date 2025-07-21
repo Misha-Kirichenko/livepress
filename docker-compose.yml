@@ -33,16 +33,16 @@ services:
     networks:
       - livepress-network
     restart: on-failure
-  # livepress-frontend:
-  #   build:
-  #     context: ./frontend
-  #   container_name: livepress-frontend
-  #   ports:
-  #     - "8080:80"
-  #   depends_on:
-  #     - livepress-backend
-  #   networks:
-  #     - livepress-network
+  livepress-frontend:
+    build:
+      context: ./frontend
+    container_name: livepress-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - livepress-backend
+    networks:
+      - livepress-network
   livepress-redis:
     image: redis:alpine
     container_name: livepress-redis
